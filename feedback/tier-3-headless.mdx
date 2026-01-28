@@ -1,0 +1,43 @@
+---
+title: "Tier 3: Headless Backend"
+description: "Bring your own UI, use our managed data pipeline."
+---
+
+Tier 3 is for developers who want absolute control over their game's UI. You build the interface using your own frames and components, but use Upview to handle data storage, context capture, and dashboard analytics.
+
+## 1. Defining a Headless Form
+Even with a custom UI, you should still "describe" your data structure using `DefineForm`. This ensures the Upview Dashboard understands how to render your submissions.
+
+```lua
+Upview:DefineForm("combat_feedback", {
+    isHeadless = true,
+    fields = {
+        { id = "weapon", label = "Weapon Used", type = "TextInput" },
+        { id = "balance", label = "Power Level", type = "StarRating" }
+    }
+})
+```
+
+## 2. Submitting Data
+When your custom UI completes, simply call `SubmitFeedback`.
+
+```lua
+-- In your custom UI logic
+SubmitButton.Activated:Connect(function()
+    local responses = {
+        weapon = "Infinity Blade",
+        balance = 4
+    }
+    
+    Upview:SubmitFeedback("combat_feedback", responses, Player)
+end)
+```
+
+## What Tier 3 provides
+- **Backend Infrastructure**: No need to set up your own database or API to save feedback.
+- **Contextual Magic**: Upview **still** captures technical data (FPS, Memory, Device) even if the UI is yours.
+- **Inbox Experience**: Your submissions appear in the same beautiful inbox as Tier 1 forms, complete with sentiment analysis and player history.
+
+## Best Practices
+- **Use meaningful IDs**: Ensure the keys in your `responses` table match the `id`s used in `DefineForm`.
+- **Validation**: Since you are building the UI, you are responsible for checking that inputs are valid before calling `SubmitFeedback`.

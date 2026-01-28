@@ -1,0 +1,54 @@
+---
+title: "Tier 2: Code-First (DSL)"
+description: "Define your forms directly in Lua for maximum version control."
+---
+
+Tier 2 allows developers to keep their form definitions in their codebase. This is ideal for those using **Rojo** or **Git**, as it keeps your UI logic synced with your code version.
+
+## Defining a Form
+Instead of using the Dashboard, use the `Upview:DefineForm` method. This will automatically create or update the form on the Upview cloud whenever the server starts.
+
+```lua
+local Upview = require(game.ReplicatedStorage.Upview)
+
+Upview:DefineForm("player_survey", {
+    title = "Weekly Feedback",
+    description = "Help us improve our game!",
+    fields = {
+        {
+            id = "fun_score",
+            label = "How fun was the match?",
+            type = "StarRating",
+            max = 5
+        },
+        {
+            id = "issues",
+            label = "Any specific issues?",
+            type = "TextInput",
+            placeholder = "Tell us more..."
+        }
+    }
+})
+```
+
+## Showing the Form
+Once defined, you use the same `ShowFeedbackForm` method as Tier 1:
+
+```lua
+Upview:ShowFeedbackForm(Player, "player_survey")
+```
+
+## Why use the DSL?
+- **Version Control**: Catch mistakes in form updates by reviewing code diffs.
+- **Dynamic Options**: Use Lua logic to generate dropdown options (e.g., a list of all currently active maps in the server).
+- **Auto-Discovery**: Simply calling `DefineForm` is enough to create the form on the dashboard. No manual setup required.
+
+## Field Types Reference
+| SDK Type | UI Element |
+| :--- | :--- |
+| `StarRating` | 5-star interactive rating |
+| `TextInput` | Single or multi-line text box |
+| `MultipleChoice`| Dropdown or Radio list |
+| `Boolean` | Checkbox / Toggle |
+| `Slider` | Value selector with min/max |
+| `Header` | Large display text (no input) |

@@ -1,0 +1,36 @@
+---
+title: "Theming & Styling"
+description: "Customize the look and feel of Tier 1 and Tier 2 forms."
+---
+
+Upview forms are designed to look premium by default, but you can customize them to match your game's brand.
+
+## Visual Customization
+You can set theme properties either through the **Dashboard** or directly in the **Lua DSL** (`Tier 2`).
+
+```lua
+Upview:DefineForm("themed_form", {
+    theme = {
+        BackgroundColor = Color3.fromRGB(20, 20, 25),
+        AccentColor = Color3.fromRGB(139, 92, 246), -- Indigo
+        TextColor = Color3.fromRGB(240, 240, 245),
+        BorderRadius = 12
+    },
+    fields = { ... }
+})
+```
+
+## Available Properties
+| Property | Description |
+| :--- | :--- |
+| `BackgroundColor` | The main background color of the form modal. |
+| `AccentColor` | Used for buttons, star ratings, and progress bars. |
+| `TextColor` | The primary text color for labels and headers. |
+| `BorderRadius` | Controls the roundness of the corners (in pixels). |
+| `FontFamily` | Supports standard Roblox fonts (e.g., "Gotham", "Roboto"). |
+
+## Responsive Layout
+Upview's `UIBinder` automatically handles layout changes based on the player's screen size:
+- **Mobile**: Forms expand to take up most of the screen with larger touch targets.
+- **Desktop**: Forms appear as elegant centered modals.
+- **Console**: Input fields are intelligently ordered for controller navigation.

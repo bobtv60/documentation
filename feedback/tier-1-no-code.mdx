@@ -1,0 +1,39 @@
+---
+title: "Tier 1: No-Code Integration"
+description: "The fastest way to get feedback using the Upview Dashboard."
+---
+
+Tier 1 is designed for teams that want to iterate quickly. You design the form visually on the web, and it appears in your game instantly.
+
+## 1. Create your Form
+Head to the **Feedback Forms** section of your Upview Dashboard and click **Create New Form**. Use the drag-and-drop builder to add:
+- Star Ratings
+- Multiple Choice questions
+- Text Inputs
+- Conditional logic (e.g., "Show 'Description' only if Rating is < 3")
+
+## 2. Trigger from Lua
+Once you have your **Form Slug** (e.g., `bug-report`), you can trigger the form for any player with a single line:
+
+```lua
+local Upview = require(game.ReplicatedStorage.Upview)
+
+-- Trigger the form when the player clicks a button
+Upview:ShowFeedbackForm(Player, "bug-report")
+```
+
+### Passing Custom Context
+You can pass additional metadata that will be attached to the feedback on the dashboard:
+
+```lua
+Upview:ShowFeedbackForm(Player, "bug-report", {
+    Map = "CyberCity",
+    Wave = 15,
+    Difficulty = "Expert"
+})
+```
+
+## Key Benefits
+- **Zero code changes**: Change questions or styles on the web and the changes sync to players in real-time.
+- **Managed UI**: Uses the Upview `UIBinder` to ensure a premium, accessible interface across all devices (Desktop, Mobile, Console).
+- **Validation**: Fields are automatically validated (required, min/max, etc.) before submission.

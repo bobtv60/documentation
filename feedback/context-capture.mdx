@@ -1,0 +1,38 @@
+---
+title: "Automatic Context Capture"
+description: "Why Upview feedback is better than a simple text box."
+---
+
+When a player submits feedback via Upview, we don't just send the text. We capture a rich snapshot of the game state to help you debug and balance your game more effectively.
+
+## What's included?
+
+Every submission automatically includes the following data points:
+
+### 🎮 Player Profile
+- **Account Age**: Helps distinguish between veteran players and new users.
+- **Membership**: See if the user is a Premium subscriber.
+- **Submission History**: View all previous feedback from this specific player in one timeline.
+
+### 💻 Technical Snapshot
+- **FPS**: Was the game lagging when they reported a "slow combat" bug?
+- **Memory**: Is the game nearing its memory limit on mobile devices?
+- **Device Type**: Distinguish between Desktop, Mobile, and Console bugs instantly.
+
+### 🌍 World State
+- **Server Version**: Know exactly which patch the player was on.
+- **Session Duration**: How long had they been playing before they decided to leave feedback?
+- **JobId**: Identify if specific feedback is clustered around a particular game server instance.
+
+## Custom Context
+As a developer, you can inject your own game-specific context at the time of submission.
+
+```lua
+Upview:ShowFeedbackForm(Player, "map_vote", {
+    CurrentMap = "volcano_island",
+    PlayerKills = 42,
+    MatchDuration = 600
+})
+```
+
+This data is rendered in the **Player Context** sidebar on the Dashboard, allowing you to filter and sort feedback by any criteria you define.
