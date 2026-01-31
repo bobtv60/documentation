@@ -1,0 +1,63 @@
+---
+title: 'Feedback Analysis'
+description: 'Understand how Upview Intelligence processes and visualizes your player feedback.'
+---
+
+The Upview Dashboard is where your raw player data transforms into actionable insights. This section covers the advanced utilities built into the Feedback Inbox to help you identify trends, translate global sentiment, and debug issues faster.
+
+## Inbox Overview
+The Feedback Inbox provides a high-level view of every submission, enriched with AI-driven metadata.
+
+[IMAGE: Feedback Inbox Sidebar showing list of responses with Category Badges and Sentiment indicators]
+
+### Key Features
+- **AI Categorization**: Automatically detects if a message is a Bug, Lag, Suggestion, Balance issue, or Praise.
+- **Sentiment Analysis**: Colors responses based on player emotion (Positive, Negative, or Neutral).
+- **Urgency Scoring**: Identifies critical issues that need immediate developer attention.
+- **Translation Badges**: Visually identifies responses that have been translated from other languages.
+
+---
+
+## Intelligence Path (Flowchart)
+One of the most powerful tools in your dashboard is the **Response Intelligence Path**. This sequential view reconstructs the player's journey through your form.
+
+[IMAGE: Feedback Details view highlighting the Response Flowchart section]
+
+### Branching Logic Visualization
+Upview doesn't just show the answer; it shows the context. For Multiple Choice questions, the dashboard displays:
+1. **The Selected Path**: Highlighted in violet with an active marker.
+2. **Alternative Options**: Ghosted pills showing what the user *could* have picked (e.g., seeing that a user picked "Confused" over "Lost").
+
+### Multi-Page Support
+If your form spans multiple pages (Step 1, Step 2, etc.), the Intelligence Path automatically inserts **Page Markers** to show exactly where the player transitioned between screens.
+
+---
+
+## Global Translation
+Upview automatically detects and translates non-English feedback using a local, privacy-focused model.
+
+[IMAGE: Detail view showing an English translation callout beneath a foreign language response]
+
+- **Inline Context**: The original text is preserved, with the English translation appearing directly below the field for instant context.
+- **Smart Filtering**: Simple UI responses (like "Yes" or short labels) are left untranslated to maintain the original intent of the form components.
+
+---
+
+## Technical Vitals & Logs
+Every feedback submission is bundled with the technical "Black Box" of that player's session.
+
+[IMAGE: Technical Vitals grid showing FPS, Ping, and Memory MB]
+
+- **Session Metadata**: View the player's platform, device type, and even their current Map location.
+- **Performance Vitals**: Real-time snapshots of FPS, Ping, and Memory usage at the exact moment the feedback was sent.
+- **Runtime Console**: A scrollable log of the client console, highlighting Warnings and Errors in red to help you reproduce bugs instantly.
+
+---
+
+## Rich Text Rendering
+Your developers can use basic formatting on both questions and answers. Upview supports:
+- **Bold Text** using `<b>` tags.
+- **Underlines** using `<u>` tags.
+- **Italics** using `<i>` tags.
+
+The dashboard renders these safely, allowing you to highlight critical parts of a survey question or player response.

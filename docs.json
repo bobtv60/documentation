@@ -23,7 +23,7 @@
         ]
       },
       {
-        "tab": "Feedback",
+        "tab": "Roblox SDK",
         "groups": [
           {
             "group": "Overview",
@@ -44,6 +44,17 @@
             "pages": [
               "feedback/theming",
               "feedback/context-capture"
+            ]
+          }
+        ]
+      },
+      {
+        "tab": "Dashboard",
+        "groups": [
+          {
+            "group": "Analytics",
+            "pages": [
+              "dashboard/feedback-analysis"
             ]
           }
         ]
