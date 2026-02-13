@@ -1,9 +1,8 @@
----
-title: "Tier 2: Code-First (DSL)"
+title: "Lua DSL (Code-First)"
 description: "Define your forms directly in Lua for maximum version control."
 ---
 
-Tier 2 allows developers to keep their form definitions in their codebase. This is ideal for those using **Rojo** or **Git**, as it keeps your UI logic synced with your code version.
+Lua DSL allows developers to keep their form definitions in their codebase. This is ideal for those using **Rojo** or **Git**, as it keeps your UI logic synced with your code version.
 
 ## Defining a Form
 Instead of using the Dashboard, use the `Upview:DefineForm` method. This will automatically create or update the form on the Upview cloud whenever the server starts.
@@ -32,7 +31,7 @@ Upview:DefineForm("player_survey", {
 ```
 
 ## Showing the Form
-Once defined, you use the same `ShowFeedbackForm` method as Tier 1:
+Once defined, you use the same `ShowFeedbackForm` method as Visual Builder:
 
 ```lua
 Upview:ShowFeedbackForm(Player, "player_survey")

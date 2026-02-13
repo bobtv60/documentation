@@ -32,11 +32,11 @@
             ]
           },
           {
-            "group": "Integration Tiers",
+            "group": "Integration Methods",
             "pages": [
-              "feedback/tier-1-no-code",
-              "feedback/tier-2-code-first",
-              "feedback/tier-3-headless"
+              "feedback/visual-builder",
+              "feedback/lua-dsl",
+              "feedback/headless-api"
             ]
           },
           {

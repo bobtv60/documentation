@@ -1,9 +1,8 @@
----
-title: "Tier 3: Headless Backend"
+title: "Headless API Integration"
 description: "Bring your own UI, use our managed data pipeline."
 ---
 
-Tier 3 is for developers who want absolute control over their game's UI. You build the interface using your own frames and components, but use Upview to handle data storage, context capture, and dashboard analytics.
+Headless API is for developers who want absolute control over their game's UI. You build the interface using your own frames and components, but use Upview to handle data storage, context capture, and dashboard analytics.
 
 ## 1. Defining a Headless Form
 Even with a custom UI, you should still "describe" your data structure using `DefineForm`. This ensures the Upview Dashboard understands how to render your submissions.
@@ -33,10 +32,10 @@ SubmitButton.Activated:Connect(function()
 end)
 ```
 
-## What Tier 3 provides
+## What Headless API provides
 - **Backend Infrastructure**: No need to set up your own database or API to save feedback.
 - **Contextual Magic**: Upview **still** captures technical data (FPS, Memory, Device) even if the UI is yours.
-- **Inbox Experience**: Your submissions appear in the same beautiful inbox as Tier 1 forms, complete with sentiment analysis and player history.
+- **Inbox Experience**: Your submissions appear in the same beautiful inbox as Visual Builder forms, complete with sentiment analysis and player history.
 
 ## Best Practices
 - **Use meaningful IDs**: Ensure the keys in your `responses` table match the `id`s used in `DefineForm`.
