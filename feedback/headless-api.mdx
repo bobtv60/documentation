@@ -28,7 +28,13 @@ SubmitButton.Activated:Connect(function()
         balance = 4
     }
     
-    Upview:SubmitFeedback("combat_feedback", responses, Player)
+    local customContext = {
+        Map = "Volcano Island",
+        CurrentSpawnId = 5,
+        Position = Character.PrimaryPart.Position
+    }
+    
+    Upview:SubmitFeedback("combat_feedback", responses, Player, customContext)
 end)
 ```
 

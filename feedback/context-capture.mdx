@@ -20,18 +20,21 @@ Every submission automatically includes the following data points:
 - **Device Type**: Distinguish between Desktop, Mobile, and Console bugs instantly.
 
 ### 🌍 World State
-- **Server Version**: Know exactly which patch the player was on.
+- **Place Version**: Know exactly which patch the player was on.
+- **Server ID (JobId)**: Identify if specific feedback is clustered around a particular game server instance.
+- **Player Count**: See the server population at the time of submission.
 - **Session Duration**: How long had they been playing before they decided to leave feedback?
-- **JobId**: Identify if specific feedback is clustered around a particular game server instance.
+- **Locale**: Automatically capture the player's language setting.
 
 ## Custom Context
-As a developer, you can inject your own game-specific context at the time of submission.
+As a developer, you can inject your own game-specific context at the time of submission. Upview automatically "flattens" complex Roblox types like **CFrame**, **Vector3**, and **Color3** so you can view them easily in the dashboard.
 
 ```lua
-Upview:ShowFeedbackForm(Player, "map_vote", {
-    CurrentMap = "volcano_island",
-    PlayerKills = 42,
-    MatchDuration = 600
+Upview:ShowFeedbackForm(Player, "bug-report", {
+    Location = Character.PrimaryPart.CFrame, -- Auto-converted to readable JSON
+    CurrentQuest = "Slime Hunt",
+    TeamColor = myPlayer.TeamColor.Color,
+    InventoryCount = 5
 })
 ```
 
