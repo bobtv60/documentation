@@ -17,7 +17,14 @@
             "group": "Getting started",
             "pages": [
               "index",
+              "essentials/why-upview",
               "quickstart"
+            ]
+          },
+          {
+            "group": "AI Features",
+            "pages": [
+              "ai-tools/intelligence"
             ]
           }
         ]
