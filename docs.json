@@ -52,6 +52,12 @@
               "feedback/theming",
               "feedback/context-capture"
             ]
+          },
+          {
+            "group": "Spatial Intelligence",
+            "pages": [
+              "feedback/heatmaps"
+            ]
           }
         ]
       },
@@ -61,7 +67,8 @@
           {
             "group": "Analytics",
             "pages": [
-              "dashboard/feedback-analysis"
+              "dashboard/feedback-analysis",
+              "dashboard/spatial-intelligence"
             ]
           }
         ]
