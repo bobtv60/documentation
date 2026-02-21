@@ -1,0 +1,230 @@
+---
+title: "Error Monitoring"
+description: "Automatic crash detection, AI-powered triage, and real-time issue tracking — built directly into your Roblox game."
+icon: "bug"
+---
+
+## Overview
+
+Upview Error Monitoring is a **Sentry-level crash tracking system** built specifically for Roblox games. It automatically captures every script error and unhandled exception in your game, groups them by fingerprint, and uses AI to diagnose the root cause — without any manual configuration.
+
+Enable it with a single config flag:
+
+```lua
+local Upview = require(game.ServerScriptService.Upview)
+
+Upview:Init({
+    ApiKey = "your-api-key",
+    EnableErrorTracking = true,  -- That's it!
+})
+:Start()
+```
+
+---
+
+## How It Works
+
+```
+ScriptContext.Error (Roblox) ─────┐
+LogService.MessageOut (errors) ───┤──► TelemetryService ──► DataQueue ──► /v1/batch
+Upview.Telemetry:CaptureError() ──┘          │
+                                              ▼
+                                    error_events table
+                                              │
+                                    fingerprint grouping
+                                              ▼
+                                    Dashboard Issues Inbox
+                                              │
+                                      AI Triage (Groq)
+```
+
+Every error captured includes:
+- Full stack trace with line numbers
+- **Live performance context** at crash time: FPS, memory (MB), player count
+- Platform (PC / Mobile / Console / Tablet)
+- Player ID and Session ID for cross-referencing with breadcrumbs
+- Error type: `Unhandled`, `ScriptError`, `LogError`, or `Custom`
+- A deterministic **fingerprint** (hash of message + script + line) that groups identical errors together
+
+---
+
+## Automatic vs Manual Capture
+
+### Automatic (requires `EnableErrorTracking = true`)
+
+Upview hooks two Roblox services automatically:
+
+| Source | Event Type | What's captured |
+|---|---|---|
+| `ScriptContext.Error` | `Unhandled` | Full stack trace, script path, line number |
+| `LogService.MessageOut` (errors) | `LogError` | Error message only |
+
+Errors are **deduplicated** within 60 seconds per fingerprint, and rate-limited to 10 errors/minute to prevent spam during cascading failures.
+
+### Manual Capture
+
+For handled exceptions you still want to track:
+
+```lua
+local TelemetryService = Upview:GetService("Telemetry")
+
+local ok, err = pcall(function()
+    -- your risky code
+end)
+
+if not ok then
+    TelemetryService:CaptureError(err, nil, {
+        customKey = "extra context",
+        shopItemId = "sword_epic"
+    })
+end
+```
+
+`CaptureError` accepts:
+- `message` — error string
+- `stackTrace` — optional, pass `debug.traceback()` if available
+- `context` — optional table of custom key-value data
+
+---
+
+## Dashboard: Issues Inbox
+
+Navigate to **Error Monitoring** in the sidebar to see your issues inbox.
+
+<img src="/images/issues-inbox.png" alt="Issues Inbox" />
+
+### Tabs
+
+| Tab | Description |
+|---|---|
+| **Open** | Active issues requiring attention |
+| **Resolved** | Issues you've marked as fixed |
+| **Ignored** | Known issues you've silenced |
+
+### Issue Cards
+
+Each issue row shows:
+- Error type badge (color-coded: red for Unhandled, orange for Script, yellow for Log, blue for Custom)
+- AI summary snippet (if triage has been run)
+- Users affected · Occurrence count · Last seen timestamp
+- Platform breakdown mini-icons
+
+### One-Click Actions
+
+Hover any row to reveal **Resolve**, **Ignore**, and **Reopen** buttons — no page navigation needed.
+
+---
+
+## Issue Detail Page
+
+Click any issue to open the detail view.
+
+### AI Triage Panel
+
+The headline feature. Click **Generate Triage** to get an instant AI diagnosis:
+
+<img src="/images/ai-triage.png" alt="AI Triage Panel" />
+
+| Section | What you get |
+|---|---|
+| **Root Cause** | One sentence: exactly what caused the crash and which variable/function is implicated |
+| **Impact** | How many players affected, server vs client, whether it's game-breaking |
+| **Fix Suggestion** | Specific, actionable code-level remedy — not generic advice |
+
+> [!NOTE]
+> AI Triage is powered by Llama 3.3 70B via Groq, tuned with Roblox-specific Lua context. Typical response time: 2–4 seconds.
+
+### Daily Triage Limits
+
+| Plan | AI Triage / day |
+|---|---|
+| Starter | 5 |
+| Pro | 25 |
+| Studio | Unlimited* |
+
+### Stack Trace Viewer
+
+A full monospace stack trace viewer with the exact script path and line number. Cross-references automatically with your session breadcrumbs.
+
+### Session Breadcrumbs
+
+A timeline of all events (telemetry, feedback, heatmap interactions) from the same `session_id` leading up to the crash — giving you the "what happened before the crash" context.
+
+### Performance at Crash
+
+Every occurrence shows the live game state captured at the exact moment of the error:
+
+```
+FPS: 23  |  Memory: 847MB  |  Players: 64  |  Platform: PC
+```
+
+---
+
+## Error Types
+
+| Type | Description |
+|---|---|
+| `Unhandled` | Caught by `ScriptContext.Error` — the most critical errors |
+| `ScriptError` | General script errors via Lua error() |
+| `LogError` | Errors appearing in LogService output |
+| `Custom` | Manually captured via `CaptureError()` |
+
+---
+
+## Error Capture Limits
+
+| Plan | Monthly Error Captures |
+|---|---|
+| Starter | 5,000 |
+| Pro | 100,000 |
+| Studio | Unlimited* |
+
+---
+
+## API Reference
+
+### `TelemetryService:CaptureError(message, stackTrace?, context?)`
+
+Manually capture a handled error.
+
+```lua
+TelemetryService:CaptureError(
+    "DataStore load failed",
+    debug.traceback(),
+    {
+        storeKey = "PlayerData_" .. player.UserId,
+        attemptNumber = 3,
+    }
+)
+```
+
+**Parameters:**
+
+| Param | Type | Required | Description |
+|---|---|---|---|
+| `message` | `string` | ✅ | The error message |
+| `stackTrace` | `string?` | ❌ | Stack trace string |
+| `context` | `{[string]: any}?` | ❌ | Extra key-value context |
+
+> [!TIP]
+> `CaptureError` automatically merges your custom context with the live perf context (FPS, memory, etc.), so you always get both.
+
+---
+
+## FAQ
+
+**Q: Will error tracking slow down my game?**
+
+No. Errors are batched with all other SDK events and sent off the main thread via `DataQueue`. The rate limiter (10 errors/min, 60s dedup cooldown) prevents any performance impact even during crash loops.
+
+**Q: What's a "fingerprint"?**
+
+A fingerprint is a deterministic hash of `message + script_path + line_number`. This means the same error from different players gets grouped into a single issue, not N separate issues.
+
+**Q: Can I filter out Roblox CoreGui errors?**
+
+Yes — those are filtered automatically. Internal Roblox errors from `CoreGui`, `CorePackages`, `RobloxGui`, and `PlayerScripts/PlayerModule` are silently discarded.
+
+**Q: When should I use `CaptureError` vs just letting errors be caught automatically?**
+
+Use `CaptureError` for **handled** errors — i.e., errors inside `pcall` blocks that you're recovering from, but still want visibility into. The automatic hooks only catch **unhandled** exceptions.

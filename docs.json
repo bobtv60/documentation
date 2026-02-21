@@ -74,6 +74,17 @@
         ]
       },
       {
+        "tab": "Error Monitoring",
+        "groups": [
+          {
+            "group": "Overview",
+            "pages": [
+              "error-monitoring/introduction"
+            ]
+          }
+        ]
+      },
+      {
         "tab": "API reference",
         "groups": [
           {
