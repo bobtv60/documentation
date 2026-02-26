@@ -122,7 +122,7 @@
   },
   "logo": {
     "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
+    "dark": "/logo/light.svg"
   },
   "navbar": {
     "links": [
@@ -155,5 +155,14 @@
       "github": "https://github.com/mintlify",
       "linkedin": "https://linkedin.com/company/mintlify"
     }
+  },
+  "background": {
+    "color": {
+      "dark": "#000000"
+    }
+  },
+  "appearance": {
+    "default": "dark",
+    "strict": true
   }
 }
