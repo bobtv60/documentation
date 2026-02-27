@@ -3,11 +3,11 @@
   "theme": "mint",
   "name": "Upview Documentation",
   "colors": {
-    "primary": "#8B5CF6",
-    "light": "#A78BFA",
-    "dark": "#7C3AED"
+    "primary": "#2563EB",
+    "light": "#2563EB",
+    "dark": "#2563EB"
   },
-  "favicon": "/favicon.svg",
+  "favicon": "/images/Untitleddesign(5).png",
   "navigation": {
     "global": {
       "anchors": [
@@ -37,10 +37,7 @@
       }
     ]
   },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/light.svg"
-  },
+  "logo": "/images/Untitleddesign(5).png",
   "navbar": {
     "links": [
       {
@@ -76,7 +73,8 @@
   "background": {
     "color": {
       "dark": "#000000"
-    }
+    },
+    "decoration": "gradient"
   },
   "appearance": {
     "default": "dark",

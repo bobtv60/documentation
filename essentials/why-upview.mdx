@@ -6,43 +6,46 @@ description: "What Upview is and why it exists."
 Upview is an analytics platform for Roblox games. You install the SDK in your game, and data from your players starts appearing in your dashboard. But it's more than just fancy charts.
 
 <Frame>
-  <img
-    src="/images/WhyUpview.png"
-    alt="Why Upview"
-    title="Why Upview"
-  />
+  ![Why Upview](/images/WhyUpview.png)
 </Frame>
-
 
 The main reason Upview was created is that most Roblox developers have no reliable way to understand what's happening in their game from the player's perspective. Discord feedback is hard to read at volume, Roblox's built-in analytics don't show you where or why things go wrong, and errors often go unreported entirely. Upview is the only tool built specifically to fix that, for Roblox, and nothing else.
 
 ## Features at a glance
 
-**Feedback** — Players submit reports through forms you create in the dashboard. Each submission is automatically categorised, urgency scored, and grouped with similar reports. Instead of reading 200 Discord messages, you see "43 players reported a hitbox issue this week, urgency 8/10."
+<Card icon="megaphone" horizontal title="Feedback">
+  Players submit reports through forms you create in the dashboard. Each submission is automatically categorised, urgency scored, and grouped with similar reports. Instead of reading 200 Discord messages, you see "43 players reported a hitbox issue this week, urgency 8/10."
+</Card>
 
-**Heatmaps** — Player positions, deaths, and emotion events are plotted directly onto your map. You upload a screenshot and align it once — from there, every event appears in the right location. If 80 players are rage-quitting in the same zone, you'll see exactly where.
+<Card icon="map-location-dot" horizontal title="Heatmaps">
+  Player positions, deaths, and emotion events are plotted directly onto your map. You upload a screenshot and align it once — from there, every event appears in the right location. If 80 players are rage-quitting in the same zone, you'll see exactly where.
+</Card>
 
-**Error monitoring** — Errors are captured automatically and grouped by fingerprint so the same crash doesn't appear as 500 separate issues. You can generate an AI diagnosis that identifies the root cause and suggests a specific fix based on the actual stack trace — not just "something broke."
+<Card icon="circle-exclamation" horizontal title="Error Monitoring">
+  Errors are captured automatically and grouped by fingerprint so the same crash doesn't appear as 500 separate issues. You can generate an AI diagnosis that identifies the root cause and suggests a specific fix based on the actual stack trace — not just "something broke."
+</Card>
 
-**Upview Intelligence** — Generate a Deep Audit that reads your data and tells you what to fix first, this week, and next update — in plain English. There's also a chat interface where you can ask questions like "why are players leaving after 4 minutes" and get answers based on your actual data.
+<Card icon="head-side-brain" horizontal title="Upview Intelligence">
+  Generate a Deep Audit that reads your data and tells you what to fix first, this week, and next update — in plain English. There's also a chat interface where you can ask questions like "why are players leaving after 4 minutes" and get answers based on your actual data.
+</Card>
 
-## Who it's for
+## Who Upview is for
 
-Upview is designed to save developers time. It's most useful for games with active players — if your game has no players yet, the dashboard will be empty until traffic comes in.
+Upview is designed to save developers time. It's also most useful for games with active players, if your game has no players yet, the dashboard will be empty until traffic comes in.
 
-## Why it costs money
+## Why Upview costs money
 
-Running scalable and reliable infrastructure has real costs, especially the AI features. A 7-day free trial is available so you can see whether it's useful before subscribing. No credit card required.
+Running scalable and reliable infrastructure has real costs, especially the AI features. A 7 day free trial is available so you can see whether it's useful before subscribing. You don't even need a card!
 
-## The SDK
+## The Upview SDK
 
-The SDK is fully open source. You can read every line before adding it to your game.
+Upview's SDK is of course fully open source. You can read every line before adding it to your game.
 
 <CardGroup cols={2}>
-  <Card icon="rocket" href="/documentation/getting-started/quickstart" title="Get started">
+  <Card icon="rocket" horizontal href="/documentation/getting-started/quickstart" title="Get started">
     Install the SDK.
   </Card>
-  <Card icon="gauge" href="https://dash.upview.dev" title="Dashboard">
+  <Card icon="gauge" horizontal href="https://upview.dev/dashboard" title="Dashboard">
     Open your workspace.
   </Card>
 </CardGroup>
