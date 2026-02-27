@@ -23,7 +23,15 @@
         }
       ]
     },
-    "groups": []
+    "groups": [
+      {
+        "group": "Get Started",
+        "pages": [
+          "index",
+          "essentials/why-upview"
+        ]
+      }
+    ]
   },
   "logo": {
     "light": "/logo/light.svg",
