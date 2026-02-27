@@ -1,0 +1,207 @@
+---
+title: Error Monitoring
+description: Capturing and reporting Lua errors automatically.
+---
+
+The TelemetryService captures Lua errors from your game, attaches performance context (FPS, memory, player count), and sends them to the Upview dashboard. It catches both unhandled runtime errors and errors you capture manually.
+
+Access it via `Upview:GetService("Telemetry")`.
+
+```lua
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Upview = require(ReplicatedStorage.Upview)
+
+Upview:Init({
+    ApiKey = "uv_live_abc123...",
+    EnableErrorTracking = true,
+}):Start()
+
+local TelemetryService = Upview:GetService("Telemetry")
+```
+
+## Automatic Error Capture
+
+When `EnableErrorTracking` is `true` (default), the SDK hooks into two Roblox services:
+
+- **`ScriptContext.Error`** — catches Lua errors with stack traces, script paths, and line numbers
+- **`LogService.MessageOut`** — catches `MessageError`-type log messages
+
+Each captured error includes:
+
+| Field | Source |
+|---|---|
+| Error message | From the Lua error |
+| Stack trace | From `ScriptContext.Error` (when available) |
+| Script path | The full name of the script that errored |
+| Line number | Extracted from the stack trace |
+| Fingerprint | A hash of `message + script + line` for deduplication |
+| FPS | Most recent FPS reading |
+| Memory (MB) | Most recent memory usage |
+| Player count | Active player count at time of error |
+| Platform | Desktop, Mobile, Console, Tablet, or VR |
+| OS | Platform enum string |
+
+<Note>
+Roblox internal errors (CoreGui, CorePackages, RobloxGui, PlayerModule) are filtered out automatically. Only your game's errors are captured.
+</Note>
+
+## Rate Limiting
+
+To prevent error storms from flooding your dashboard:
+
+- **10 errors per minute** — after this limit, new errors in the same minute are dropped
+- **Duplicate cooldown** — errors with the same fingerprint are suppressed for 60 seconds after first capture
+
+<Warning>
+If a loop throws an error every frame, you'll hit the rate limit almost immediately. The first error is captured; the rest are dropped until the cooldown expires. Fix the root cause rather than relying on the rate limiter.
+</Warning>
+
+## Manual Error Capture
+
+### `TelemetryService:CaptureError(message, stackTrace?, context?)`
+
+Manually report an error. Useful for handled exceptions you still want tracked.
+
+<ParamField path="message" type="string" required>
+  The error message.
+</ParamField>
+
+<ParamField path="stackTrace" type="string?">
+  Optional stack trace string. Use `debug.traceback()` to capture it.
+</ParamField>
+
+<ParamField path="context" type="table?">
+  Optional key-value table with extra context. These fields are merged on top of the automatic performance context (FPS, memory, etc.).
+</ParamField>
+
+```lua
+local TelemetryService = Upview:GetService("Telemetry")
+
+-- Basic error capture
+TelemetryService:CaptureError("Failed to load player data")
+
+-- With stack trace
+TelemetryService:CaptureError(
+    "Inventory save failed",
+    debug.traceback()
+)
+
+-- With custom context
+TelemetryService:CaptureError("Match timeout", debug.traceback(), {
+    matchId = "abc123",
+    roundNumber = 3,
+    remainingPlayers = 4,
+})
+```
+
+<Tip>
+The `context` table you pass is merged with the automatic context (FPS, memory, player count, platform). Your values take precedence if there are key conflicts.
+</Tip>
+
+## Protecting Functions
+
+A common pattern is wrapping game functions with `pcall` and capturing errors:
+
+```lua
+local TelemetryService = Upview:GetService("Telemetry")
+
+local function safeCall(fn, ...)
+    local success, result = pcall(fn, ...)
+    if not success then
+        TelemetryService:CaptureError(tostring(result), debug.traceback(), {
+            source = "safe_call",
+        })
+    end
+    return success, result
+end
+
+-- Use it to protect critical game logic
+safeCall(function()
+    -- Your round system code here
+    startNewRound()
+    spawnPlayers()
+    beginCountdown()
+end)
+```
+
+## Example: Protecting a Round System
+
+```lua
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Upview = require(ReplicatedStorage.Upview)
+
+Upview:Init({
+    ApiKey = "uv_live_abc123...",
+    EnableErrorTracking = true,
+}):Start()
+
+local TelemetryService = Upview:GetService("Telemetry")
+
+local function runRound(roundNumber)
+    -- Game logic that might fail
+    local mapData = loadMap(roundNumber)
+    spawnPlayers(mapData.spawns)
+    startTimer(mapData.duration)
+end
+
+-- Main game loop with error protection
+while true do
+    local roundNumber = getCurrentRound()
+
+    local success, err = pcall(runRound, roundNumber)
+    if not success then
+        TelemetryService:CaptureError(tostring(err), debug.traceback(), {
+            roundNumber = roundNumber,
+            playerCount = #game:GetService("Players"):GetPlayers(),
+        })
+        -- Fallback: skip to next round
+        warn("Round failed, skipping to next:", err)
+    end
+
+    task.wait(5)
+end
+```
+
+## Error Event
+
+### `OnErrorCaptured`
+
+Fired every time an error is captured (automatic or manual). Useful for custom alerting or in-game debugging UIs.
+
+```lua
+TelemetryService.OnErrorCaptured:Connect(function(errorInfo)
+    print("Error captured:", errorInfo.Message)
+    print("  Script:", errorInfo.Script)
+    print("  Line:", errorInfo.Line)
+    print("  Fingerprint:", errorInfo.Fingerprint)
+    print("  FPS at crash:", errorInfo.Context.fps)
+    print("  Memory at crash:", errorInfo.Context.memoryMb, "MB")
+end)
+```
+
+### ErrorInfo Fields
+
+<Expandable title="ErrorInfo type definition">
+
+| Field | Type | Description |
+|---|---|---|
+| `Message` | `string` | The error message |
+| `StackTrace` | `string?` | Full stack trace (if available) |
+| `Script` | `string?` | Full path of the script that errored |
+| `Line` | `number?` | Line number where the error occurred |
+| `Timestamp` | `number` | Unix timestamp in milliseconds |
+| `Fingerprint` | `string` | Hash for deduplication |
+| `PlayerId` | `string?` | Associated player ID (if applicable) |
+| `SessionId` | `string?` | Current server session ID |
+| `Context` | `table?` | Performance context (fps, memoryMb, playerCount, platform, os) |
+
+</Expandable>
+
+<CardGroup cols={2}>
+  <Card title="Custom Events" icon="bolt" href="/sdk-reference/events">
+    Track game-specific events.
+  </Card>
+  <Card title="Session Tracking" icon="users" href="/sdk-reference/sessions">
+    What the SDK tracks about player sessions.
+  </Card>
+</CardGroup>

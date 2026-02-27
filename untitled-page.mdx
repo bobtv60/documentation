@@ -1,0 +1,162 @@
+---
+title: Installation
+description: Get the Upview SDK into your Roblox game.
+---
+
+The Upview SDK is a Luau ModuleScript that runs in your Roblox game server. It collects player analytics, heatmap data, feedback, and error reports — then sends everything to your Upview dashboard.
+
+This page covers how to install it and verify data is flowing.
+
+## Prerequisites
+
+Before installing, make sure:
+
+- You have a Roblox game open in Roblox Studio
+- You have an Upview workspace with an API key (get one at [upview.dev](https://dash.upview.dev))
+- **HttpService is enabled** in your game
+
+<Warning>
+HttpService must be enabled or the SDK cannot send data. Go to **Game Settings → Security → Allow HTTP Requests** and turn it on.
+</Warning>
+
+## Installation
+
+<Tabs>
+  <Tab title="Studio Plugin (Recommended)">
+    The Upview Studio plugin handles everything automatically — it installs the SDK files, creates the loader script, and validates your API key.
+
+    <Steps>
+      <Step title="Install the Plugin">
+        Open Roblox Studio, go to **Plugins → Manage Plugins**, search for **Upview**, and click **Install**.
+      </Step>
+      <Step title="Open the Plugin">
+        Click the **Upview** button in the Plugins toolbar.
+      </Step>
+      <Step title="Enter Your API Key">
+        Paste your API key from [your dashboard](https://dash.upview.dev). Your key starts with `uv_live_` or `uv_test_`.
+      </Step>
+      <Step title="Click Sync & Install SDK">
+        The plugin will validate your key, install the SDK into `ReplicatedStorage`, and create a loader script in `ServerScriptService`.
+      </Step>
+      <Step title="Test the Connection">
+        Click **Play** in Studio. Check the Output window for `[Upview] SDK loaded and running!`. Your dashboard will show the connection within a few seconds.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Manual Installation">
+    If you prefer not to use the plugin, you can install manually.
+
+    <Steps>
+      <Step title="Get the SDK">
+        Download or clone the SDK from [GitHub](https://github.com/upview-dev/sdk) and place the `Upview` folder into `ReplicatedStorage`.
+      </Step>
+      <Step title="Create a Server Script">
+        Create a new **Script** (not a LocalScript) in `ServerScriptService`. Name it something like `UpviewLoader`.
+      </Step>
+      <Step title="Add the Loader Code">
+        Paste this into your script:
+
+        ```lua
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local Upview = require(ReplicatedStorage.Upview)
+
+        Upview:Init({
+            ApiKey = "your-api-key-here",
+        }):Start()
+        ```
+      </Step>
+      <Step title="Test">
+        Click Play in Studio. Check the Output window for SDK log messages. Your dashboard should show data within 30 seconds.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Command Bar">
+    For a quick one-line install, paste this into the Studio Command Bar:
+
+    ```lua
+    loadstring(game:HttpGet("https://upview.dev/install.lua"))()("YOUR_API_KEY")
+    ```
+
+    This downloads and installs the SDK files automatically.
+  </Tab>
+</Tabs>
+
+## Minimal Working Example
+
+This is the smallest script that gets data flowing. Place it in `ServerScriptService`:
+
+```lua
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Upview = require(ReplicatedStorage.Upview)
+
+Upview:Init({
+    ApiKey = "uv_live_abc123...",
+}):Start()
+
+-- That's it. The SDK now tracks:
+-- ✓ Player joins and leaves
+-- ✓ Session duration and platform
+-- ✓ Performance metrics (FPS, memory)
+-- ✓ Unhandled Lua errors
+-- ✓ Player positions for heatmaps
+```
+
+<Note>
+After calling `Init()` and `Start()`, the SDK begins collecting data automatically. You don't need to write any additional code for basic analytics.
+</Note>
+
+## What Gets Installed
+
+```
+ReplicatedStorage/
+└── Upview/
+    ├── init.lua           -- Entry point (requires Core/Upview)
+    ├── Core/
+    │   ├── Upview.lua     -- Main SDK controller
+    │   └── DataQueue.lua  -- Batching and HTTP pipeline
+    ├── Services/
+    │   ├── TelemetryService.lua   -- Metrics and error capture
+    │   ├── HeatmapService.lua     -- Position and zone tracking
+    │   └── FeedbackService.lua    -- Feedback form system
+    ├── Components/
+    │   └── UIBinder.lua   -- Feedback form UI renderer
+    └── Shared/
+        ├── Types.lua      -- Type definitions
+        ├── Signal.lua     -- Event system
+        └── Utils.lua      -- Utility functions
+```
+
+## Common Mistakes
+
+<AccordionGroup>
+  <Accordion title="Using a LocalScript instead of a Script">
+    The SDK sends HTTP requests using `HttpService:RequestAsync()`, which only works on the server. If you `require` the SDK from a LocalScript, it will not send data.
+
+    Always use a **Script** in **ServerScriptService**.
+  </Accordion>
+  <Accordion title="HttpService not enabled">
+    If you see errors about HTTP requests being blocked, go to **Game Settings → Security** and enable **Allow HTTP Requests**. This is off by default in new places.
+  </Accordion>
+  <Accordion title="Wrong API key">
+    API keys start with `uv_live_` (production) or `uv_test_` (development). If you paste the wrong key, the SDK will log a warning and continue in offline mode — no data will reach your dashboard.
+  </Accordion>
+  <Accordion title="API key exposed on the client">
+    Never put your API key in a LocalScript, ModuleScript in ReplicatedStorage that clients can read, or anywhere accessible from the client. The SDK handles server-to-client communication via RemoteEvents — the API key stays server-side.
+  </Accordion>
+  <Accordion title="Calling SDK methods before Init">
+    All SDK methods silently return if called before `Init()` and `Start()`. Make sure your init script runs before any other script that uses the SDK.
+  </Accordion>
+</AccordionGroup>
+
+<Warning>
+The SDK must only run server-side. Your API key must never be accessible from the client. The SDK handles client-side features (like feedback forms) through secure RemoteEvents — it does not expose the key.
+</Warning>
+
+<CardGroup cols={2}>
+  <Card title="Initialisation" icon="gear" href="/sdk-reference/initialisation">
+    Configure the SDK with all available options.
+  </Card>
+  <Card title="Quick Start" icon="bolt" href="/quickstart">
+    End-to-end setup walkthrough.
+  </Card>
+</CardGroup>

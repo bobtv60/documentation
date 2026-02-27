@@ -33,7 +33,33 @@
       },
       {
         "group": "SDK Reference",
-        "pages": []
+        "pages": [
+          {
+            "group": "Getting Started",
+            "pages": [
+              "ov",
+              "untitled-page",
+              "test"
+            ]
+          },
+          {
+            "group": "Services",
+            "pages": [
+              "heatmaps",
+              "feedback-service",
+              "error-tracking",
+              "s",
+              "s-1",
+              "s-3"
+            ]
+          },
+          {
+            "group": "Reference",
+            "pages": [
+              "s-2"
+            ]
+          }
+        ]
       }
     ]
   },

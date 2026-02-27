@@ -1,0 +1,118 @@
+---
+title: SDK Overview
+description: The Upview SDK for Roblox — what it does and how it's structured.
+---
+
+The Upview SDK is a Luau ModuleScript that runs in your Roblox game server. It collects player analytics, spatial data, feedback, and error reports — then sends everything to your [Upview dashboard](https://dash.upview.dev).
+
+## What the SDK Does
+
+| Feature | Description | Service |
+|---|---|---|
+| **Session Tracking** | Player joins, leaves, duration, platform | Core (automatic) |
+| **Custom Events** | Track any named game event with metadata | Core |
+| **Performance Metrics** | FPS, memory, instance count, heartbeat time | TelemetryService |
+| **Error Capture** | Unhandled errors with stack traces and context | TelemetryService |
+| **Position Tracking** | Player positions sampled every 2 seconds | HeatmapService |
+| **Zone Detection** | Enter/exit events for tagged areas | HeatmapService |
+| **Emotion Tagging** | Tag position data with player state | HeatmapService |
+| **Spatial Events** | Deaths, purchases, interactions at exact positions | HeatmapService |
+| **Feedback Forms** | Dynamic in-game forms with live updates | FeedbackService |
+
+## Architecture
+
+The SDK is a singleton. You `require` it once, call `Init()` with your API key, and call `Start()`. From that point, data collection is automatic.
+
+```lua
+local Upview = require(ReplicatedStorage.Upview)
+Upview:Init({ ApiKey = "uv_live_..." }):Start()
+```
+
+Under the hood, the SDK has three services:
+
+- **TelemetryService** — performance metrics and error tracking
+- **HeatmapService** — spatial position tracking, zones, emotions, and events
+- **FeedbackService** — form rendering, submission, and live updates
+
+All data flows through a **DataQueue** — a batching engine that queues events and sends them via HTTP in groups. This keeps network overhead low and avoids frame spikes.
+
+## Folder Structure
+
+```
+Upview/
+├── init.lua              -- Entry point
+├── Core/
+│   ├── Upview.lua        -- Main SDK controller (singleton)
+│   └── DataQueue.lua     -- Batching and HTTP pipeline
+├── Services/
+│   ├── TelemetryService.lua
+│   ├── HeatmapService.lua
+│   └── FeedbackService.lua
+├── Components/
+│   └── UIBinder.lua      -- Feedback form UI renderer
+└── Shared/
+    ├── Types.lua          -- Type definitions
+    ├── Signal.lua         -- Event system
+    └── Utils.lua          -- Utility functions
+```
+
+## Accessing Services
+
+After init, access services with `GetService`:
+
+```lua
+local TelemetryService = Upview:GetService("Telemetry")
+local HeatmapService = Upview:GetService("Heatmap")
+local FeedbackService = Upview:GetService("Feedback")
+```
+
+## Core Signals
+
+| Signal | Parameters | Description |
+|---|---|---|
+| `OnReady` | — | SDK is initialised and running |
+| `OnError` | `string` | An SDK-level error occurred |
+| `OnPlayerJoined` | `PlayerContext` | Player joined and context is ready |
+| `OnPlayerLeft` | `Player` | Player is leaving the game |
+
+## SDK Status
+
+The SDK tracks its state via `Upview.Status`:
+
+| Status | Meaning |
+|---|---|
+| `"Uninitialized"` | Default state before `Init()` |
+| `"Initializing"` | `Init()` is running |
+| `"Ready"` | `Init()` completed, `Start()` can be called |
+| `"Error"` | Init failed (e.g. missing API key) |
+| `"Stopped"` | `Stop()` or `Destroy()` was called |
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/sdk-reference/installation">
+    Get the SDK into your game.
+  </Card>
+  <Card title="Initialisation" icon="gear" href="/sdk-reference/initialisation">
+    Configure and start the SDK.
+  </Card>
+  <Card title="Heatmaps" icon="map" href="/sdk-reference/heatmaps">
+    Player position and spatial tracking.
+  </Card>
+  <Card title="Feedback" icon="message" href="/sdk-reference/feedback">
+    In-game feedback forms.
+  </Card>
+  <Card title="Error Monitoring" icon="bug" href="/sdk-reference/error-monitoring">
+    Automatic and manual error capture.
+  </Card>
+  <Card title="Custom Events" icon="bolt" href="/sdk-reference/events">
+    Track any game event.
+  </Card>
+  <Card title="Telemetry" icon="chart-line" href="/sdk-reference/telemetry">
+    Performance metrics.
+  </Card>
+  <Card title="Sessions" icon="users" href="/sdk-reference/sessions">
+    Player session data.
+  </Card>
+  <Card title="Configuration" icon="sliders" href="/sdk-reference/configuration">
+    All Init() options.
+  </Card>
+</CardGroup>

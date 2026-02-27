@@ -1,0 +1,332 @@
+---
+title: "Heatmaps"
+description: "Tracking player positions, zones, emotions, and spatial events."
+---
+
+The HeatmapService tracks where players go in your game. It records positions automatically, detects zone transitions, supports emotion tagging, and captures spatial events like deaths and purchases — all tied to exact locations.
+
+Access it via `Upview:GetService("Heatmaps")`.
+
+```lua
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Upview = require(ReplicatedStorage.Upview)
+
+Upview:Init({
+    ApiKey = "uv_live_abc123...",
+    EnableHeatmaps = true,
+}):Start()
+
+local HeatmapService = Upview:GetService("Heatmaps")
+```
+
+## How Tracking Works
+
+When `EnableHeatmaps` is `true`, the HeatmapService starts a tracking loop that runs every 2 seconds (configurable). Each tick it:
+
+1. Checks each player's `HumanoidRootPart` position
+2. Skips if the player hasn't moved more than 0.5 studs since the last sample
+3. Compresses coordinates to 1 decimal place
+4. Appends the point to a buffer with zone, emotion, and anchor context
+5. Flushes the buffer when it reaches 50 points
+
+You don't need to call anything manually for basic position tracking — it runs automatically.
+
+<Note>
+  Position tracking uses the server-side character model, not client-side input. The SDK reads `HumanoidRootPart.Position` on each tick.
+</Note>
+
+## Zero-Code Setup
+
+The HeatmapService uses Roblox's **CollectionService** for automatic anchor and zone detection. No code required — just tag parts in Studio.
+
+### Anchors (for Relative Coordinates)
+
+Anchors let you track positions relative to a reference point. This is useful for procedural maps or repeated room layouts (e.g. all "coffee shops" share one heatmap).
+
+<Steps>
+  <Step title="Create a Part">
+    Place a Part at the center of the area you want to anchor.
+  </Step>
+  <Step title="Add the Tag">
+    Tag the Part with `UpviewAnchor` using the Tag Editor in Studio.
+  </Step>
+  <Step title="Set the Context">
+    Add a string attribute called `UpviewContext` to the Part. Set it to a name like `"CoffeeShopLayout"`.
+  </Step>
+</Steps>
+
+When a player is within 200 studs of the nearest anchor, their coordinates are recorded relative to that anchor's CFrame. Multiple rooms with the same `UpviewContext` value are aggregated into a single heatmap on the dashboard.
+
+### Zones (for Area Detection)
+
+Zones track when players enter or exit named areas.
+
+<Steps>
+  <Step title="Create a Part">
+    Place a Part that covers the area you want to track. The Part's bounding box defines the zone boundary.
+  </Step>
+  <Step title="Add the Tag">
+    Tag the Part with `UpviewZone` using the Tag Editor.
+  </Step>
+  <Step title="Set the Zone Name">
+    Add a string attribute called `UpviewZoneName` to the Part. Set it to a name like `"Lobby"` or `"BossRoom"`.
+  </Step>
+</Steps>
+
+The SDK checks every tick whether each player is inside a zone part's bounding box. Zone enter/exit events are tracked automatically.
+
+## Emotions
+
+Tag a player's position data with an emotion state. Emotions show up as coloured indicators on the dashboard heatmap.
+
+### `HeatmapService:SetPlayerEmotion(player, emotion)`
+
+Sets the emotion for a player. All subsequent position samples include this emotion until it's changed or cleared.
+
+<ParamField path="player" type="Player" required>
+  The target player.
+</ParamField>
+
+<ParamField path="emotion" type="string" required>
+  One of: `"happy"`, `"frustrated"`, `"excited"`, `"calm"`, `"confused"`, `"bored"`, `"neutral"`.
+</ParamField>
+
+```lua
+-- Player just lost a round
+HeatmapService:SetPlayerEmotion(player, "frustrated")
+
+-- Player found a rare item
+HeatmapService:SetPlayerEmotion(player, "excited")
+
+-- Clear after 30 seconds
+task.delay(30, function()
+    HeatmapService:ClearPlayerEmotion(player)
+end)
+```
+
+### `HeatmapService:ClearPlayerEmotion(player)`
+
+Removes the emotion tag from a player. Subsequent position samples will have no emotion.
+
+<ParamField path="player" type="Player" required>
+  The target player.
+</ParamField>
+
+```lua
+HeatmapService:ClearPlayerEmotion(player)
+```
+
+### `HeatmapService:GetPlayerEmotion(player)`
+
+Returns the player's current emotion, or `nil` if not set.
+
+<ParamField path="player" type="Player" required>
+  The target player.
+</ParamField>
+
+<ResponseField name="emotion" type="string?">
+  The player's current emotion string, or `nil`.
+</ResponseField>
+
+```lua
+local emotion = HeatmapService:GetPlayerEmotion(player)
+if emotion == "frustrated" then
+    -- Maybe offer help or adjust difficulty
+end
+```
+
+## Spatial Events
+
+Record one-time events at a player's current position. These show up as markers on the dashboard heatmap — distinct from regular position dots.
+
+### `HeatmapService:RecordEvent(player, eventType, eventData?)`
+
+Drops a spatial event marker at the player's current position.
+
+<ParamField path="player" type="Player" required>
+  The target player. Their `HumanoidRootPart` position is used.
+</ParamField>
+
+<ParamField path="eventType" type="string" required>
+  The type of event. Common values: `"death"`, `"purchase"`, `"interaction"`, `"achievement"`. You can use any string.
+</ParamField>
+
+<ParamField path="eventData" type="table?">
+  Optional metadata. A flat key-value table with context about the event.
+</ParamField>
+
+```lua
+-- Record a death
+HeatmapService:RecordEvent(player, "death", {
+    cause = "fall_damage",
+    health = 0,
+})
+
+-- Record a purchase
+HeatmapService:RecordEvent(player, "purchase", {
+    item = "legendary_sword",
+    cost = 500,
+    currency = "Coins",
+})
+
+-- Record an interaction
+HeatmapService:RecordEvent(player, "interaction", {
+    action = "npc_talked",
+    npcName = "Shopkeeper",
+})
+```
+
+<Tip>
+  Deaths and purchases from Roblox's built-in systems (Humanoid.Died, MarketplaceService) are tracked automatically when `AutoTriggerEvents` is enabled (it is by default). You only need `RecordEvent()` for custom game events.
+</Tip>
+
+## Auto-Triggered Events
+
+When `AutoTriggerEvents` is enabled (default: `true`), the HeatmapService automatically hooks into:
+
+| Game Event                                          | Tracked As      | Data                                        |
+| --------------------------------------------------- | --------------- | ------------------------------------------- |
+| `Humanoid.Died`                                     | `"death"`       | `cause = "unknown"`                         |
+| `MarketplaceService.PromptProductPurchaseFinished`  | `"purchase"`    | `productId`, `source = "developer_product"` |
+| `MarketplaceService.PromptGamePassPurchaseFinished` | `"purchase"`    | `gamePassId`, `source = "game_pass"`        |
+| `Character.ChildAdded` (Tool)                       | `"interaction"` | `action = "tool_equipped"`, `toolName`      |
+| `FeedbackService.OnFormCompleted`                   | `"interaction"` | `action = "feedback_submitted"`, `formSlug` |
+
+## Zones API
+
+### `HeatmapService:GetCurrentZone(player)`
+
+Returns the name of the zone the player is currently inside, or `nil` if they're not in any zone.
+
+<ParamField path="player" type="Player" required>
+  The target player.
+</ParamField>
+
+<ResponseField name="zoneName" type="string?">
+  The zone name from the `UpviewZoneName` attribute, or `nil`.
+</ResponseField>
+
+```lua
+local zone = HeatmapService:GetCurrentZone(player)
+if zone == "VIP_Lounge" then
+    print(player.Name .. " is in the VIP lounge")
+end
+```
+
+### Zone Change Signal
+
+```lua
+HeatmapService.OnZoneChanged:Connect(function(player, newZone, oldZone)
+    if newZone then
+        print(player.Name .. " entered " .. newZone)
+    end
+    if oldZone then
+        print(player.Name .. " left " .. oldZone)
+    end
+end)
+```
+
+## Manual Anchoring
+
+If you prefer code-based control over the tag-based auto-anchoring system:
+
+### `HeatmapService:SetPlayerAnchor(player, anchor?, context?)`
+
+Manually assigns an anchor part and context to a player. Set `anchor` to `nil` to clear.
+
+<ParamField path="player" type="Player" required>
+  The target player.
+</ParamField>
+
+<ParamField path="anchor" type="BasePart?">
+  The part to use as the anchor origin. Pass `nil` to clear the anchor.
+</ParamField>
+
+<ParamField path="context" type="string?">
+  The context name. Defaults to the part's `Name` if not provided.
+</ParamField>
+
+```lua
+local shopPart = workspace.Shop.AnchorPart
+HeatmapService:SetPlayerAnchor(player, shopPart, "ShopLayout")
+
+-- Clear the anchor later
+HeatmapService:SetPlayerAnchor(player, nil)
+```
+
+## Map Bounds
+
+### `Upview:SetMapBounds(minPos, maxPos)`
+
+Reports your map's bounding box to the dashboard so the heatmap overlay aligns with your uploaded map image.
+
+<ParamField path="minPos" type="Vector3" required>
+  The top-left corner anchor position of your map.
+</ParamField>
+
+<ParamField path="maxPos" type="Vector3" required>
+  The bottom-right corner anchor position of your map.
+</ParamField>
+
+```lua
+-- Call this once after Init
+Upview:SetMapBounds(
+    Vector3.new(-500, 0, -500),  -- Top-left corner
+    Vector3.new(500, 0, 500)     -- Bottom-right corner
+)
+```
+
+## `HeatmapService:ForceFlush()`
+
+Immediately flushes the point buffer to the data queue. Normally the buffer flushes automatically when it reaches 50 points. Call this if you need data sent immediately (e.g. before a server shutdown).
+
+```lua
+HeatmapService:ForceFlush()
+```
+
+## Heatmap Configuration Options
+
+These options can be passed in the `Init()` config table:
+
+| Key                         | Type      | Default          | Description                                   |
+| --------------------------- | --------- | ---------------- | --------------------------------------------- |
+| `HeatmapTrackingInterval`   | `number`  | `2`              | Seconds between position samples              |
+| `HeatmapMaxPointsPerFlush`  | `number`  | `50`             | Buffer size before auto-flush                 |
+| `HeatmapMinDistance`        | `number`  | `0.5`            | Minimum studs moved to record a new point     |
+| `HeatmapAutoAnchorEnabled`  | `boolean` | `true`           | Use CollectionService tags for anchoring      |
+| `HeatmapAutoAnchorTag`      | `string`  | `"UpviewAnchor"` | Tag name for anchor parts                     |
+| `HeatmapAutoAnchorDistance` | `number`  | `200`            | Max studs from anchor to activate             |
+| `HeatmapAutoZoneEnabled`    | `boolean` | `true`           | Use CollectionService tags for zone detection |
+| `HeatmapAutoZoneTag`        | `string`  | `"UpviewZone"`   | Tag name for zone parts                       |
+| `HeatmapAutoTriggerEvents`  | `boolean` | `true`           | Auto-hook deaths, purchases, tool equips      |
+
+```lua
+Upview:Init({
+    ApiKey = "uv_live_abc123...",
+    EnableHeatmaps = true,
+    HeatmapTrackingInterval = 1.0,     -- Sample every second
+    HeatmapMinDistance = 2.0,          -- Only record if moved 2+ studs
+    HeatmapAutoTriggerEvents = true,   -- Track deaths/purchases automatically
+}):Start()
+```
+
+<Warning>
+  Setting `HeatmapTrackingInterval` below 1 second increases data volume significantly. For most games, 2 seconds provides good coverage without excessive data.
+</Warning>
+
+## Signals
+
+| Signal              | Parameters                 | Description                                                                        |
+| ------------------- | -------------------------- | ---------------------------------------------------------------------------------- |
+| `OnPointsCollected` | `{SpatialPoint}`           | Fired when a batch of points is flushed                                            |
+| `OnZoneChanged`     | `Player, string?, string?` | Fired when a player enters or exits a zone. Parameters: player, new zone, old zone |
+| `OnEmotionChanged`  | `Player, string`           | Fired when a player's emotion is set                                               |
+
+<CardGroup cols={2}>
+  <Card icon="message" href="/sdk-reference/feedback" title="Feedback">
+    Collect structured player feedback.
+  </Card>
+  <Card icon="bolt" href="/sdk-reference/events" title="Custom Events">
+    Track game-specific events.
+  </Card>
+</CardGroup>

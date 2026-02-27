@@ -1,0 +1,112 @@
+---
+title: Telemetry
+description: Performance metrics and custom telemetry events.
+---
+
+The TelemetryService collects performance metrics from your game server every 30 seconds and exposes them on your dashboard. It also provides an API for tracking custom events through the service directly.
+
+Access it via `Upview:GetService("Telemetry")`.
+
+```lua
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Upview = require(ReplicatedStorage.Upview)
+
+Upview:Init({
+    ApiKey = "uv_live_abc123...",
+    EnableTelemetry = true,
+}):Start()
+
+local TelemetryService = Upview:GetService("Telemetry")
+```
+
+## Automatic Metrics
+
+When `EnableTelemetry` is `true` (default), the service collects these metrics every 30 seconds:
+
+| Metric | Source | Description |
+|---|---|---|
+| `Fps` | `RunService.RenderStepped` | Frames per second |
+| `HeartbeatTime` | `Stats.HeartbeatTimeMs` | Server heartbeat duration in ms |
+| `MemoryUsage` | `Stats:GetTotalMemoryUsageMb()` | Total memory usage in MB |
+| `InstanceCount` | `Stats.InstanceCount` | Total Instance count |
+| `Platform` | `UserInputService` | Desktop, Mobile, Console, etc. |
+| `Os` | `UserInputService:GetPlatform()` | Operating system |
+
+These are sent as `telemetry_metrics` events automatically. You don't need to call anything.
+
+## `TelemetryService:GetCurrentMetrics()`
+
+Returns the latest performance metrics by collecting them on demand.
+
+<ResponseField name="metrics" type="TelemetryMetrics">
+  A table containing the current FPS, memory, instance count, heartbeat time, platform, and OS.
+</ResponseField>
+
+```lua
+local metrics = TelemetryService:GetCurrentMetrics()
+print("FPS:", metrics.Fps)
+print("Memory:", metrics.MemoryUsage, "MB")
+print("Instances:", metrics.InstanceCount)
+print("Heartbeat:", metrics.HeartbeatTime, "ms")
+print("Platform:", metrics.Platform)
+```
+
+<Note>
+`GetCurrentMetrics()` collects fresh data each call. It waits one frame for the FPS measurement. Don't call this in a tight loop.
+</Note>
+
+## `TelemetryService:TrackCustomEvent(name, data?, playerId?)`
+
+Tracks a custom event through the TelemetryService. The event name is automatically prefixed with `"custom_"`.
+
+<ParamField path="name" type="string" required>
+  The event name. Will be sent as `"custom_{name}"`.
+</ParamField>
+
+<ParamField path="data" type="table?">
+  Optional metadata. Flat key-value table.
+</ParamField>
+
+<ParamField path="playerId" type="string?">
+  Optional player attribution.
+</ParamField>
+
+```lua
+TelemetryService:TrackCustomEvent("round_start", {
+    map = "desert_arena",
+    mode = "team_deathmatch",
+    maxPlayers = 16,
+})
+
+TelemetryService:TrackCustomEvent("item_crafted", {
+    itemId = "iron_sword",
+    tier = 2,
+}, tostring(player.UserId))
+```
+
+## `TelemetryService:CaptureError(message, stackTrace?, context?)`
+
+Manually captures an error. See [Error Monitoring](/sdk-reference/error-monitoring) for full details.
+
+## Metrics Signal
+
+### `OnMetricsCollected`
+
+Fired every 30 seconds with the latest metrics. Useful for in-game performance displays or custom logging.
+
+```lua
+TelemetryService.OnMetricsCollected:Connect(function(metrics)
+    -- Update a performance HUD
+    fpsLabel.Text = "FPS: " .. tostring(metrics.Fps)
+    memoryLabel.Text = string.format("Memory: %.1f MB", metrics.MemoryUsage)
+end)
+```
+
+<CardGroup cols={2}>
+  <Card title="Error Monitoring" icon="bug" href="/sdk-reference/error-monitoring">
+    Automatic and manual error capture.
+  </Card>
+  <Card title="Custom Events" icon="bolt" href="/sdk-reference/events">
+    Track game-specific events.
+  </Card>
+</CardGroup>

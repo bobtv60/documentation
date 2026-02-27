@@ -1,0 +1,164 @@
+---
+title: Session Tracking
+description: What the SDK tracks automatically about player sessions.
+---
+
+When you call `Init()` and `Start()`, the SDK automatically tracks player sessions. No additional code is needed for basic session data.
+
+## What Is Tracked Automatically
+
+For every player who joins the game, the SDK records:
+
+| Data | Source |
+|---|---|
+| **User ID** | `player.UserId` |
+| **Username** | `player.Name` |
+| **Display Name** | `player.DisplayName` |
+| **Account Age** | `player.AccountAge` (days since account creation) |
+| **Membership Type** | `player.MembershipType` (Premium status) |
+| **Platform** | Detected via `UserInputService` — Desktop, Mobile, Tablet, Console, or VR |
+| **Locale** | `player.LocaleId` |
+| **Join Time** | Timestamp when the player joined |
+| **Session ID** | Server-wide session identifier |
+
+When a player leaves, the SDK tracks:
+
+| Data | Source |
+|---|---|
+| **Session Duration** | Time between join and leave (seconds) |
+| **Last Position** | Player's last known `HumanoidRootPart` position (if HeatmapService is enabled) |
+
+## How It Works
+
+1. **Player joins** → The SDK creates a `PlayerContext` and fires a `player_joined` event
+2. **During session** → The player's context is available via `Upview:GetPlayerContext(player)`  
+3. **Player leaves** → The SDK fires a `player_left` event with session duration and last position, then cleans up all per-player state across services
+
+```lua
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Upview = require(ReplicatedStorage.Upview)
+
+Upview:Init({
+    ApiKey = "uv_live_abc123...",
+}):Start()
+
+-- Session tracking is now active. Nothing else to do.
+```
+
+## Getting Player Context
+
+### `Upview:GetPlayerContext(player)`
+
+Returns the stored context data for a player, or `nil` if the player isn't tracked.
+
+<ParamField path="player" type="Player" required>
+  The player to look up.
+</ParamField>
+
+<ResponseField name="context" type="PlayerContext?">
+  The player's session context, or `nil` if not found.
+</ResponseField>
+
+```lua
+local context = Upview:GetPlayerContext(player)
+if context then
+    print("Player:", context.Username)
+    print("Platform:", context.Platform)
+    print("Account age:", context.AccountAge, "days")
+    print("Joined at:", context.JoinTime)
+    print("Session ID:", context.SessionId)
+end
+```
+
+### PlayerContext Fields
+
+<Expandable title="PlayerContext type definition">
+
+| Field | Type | Description |
+|---|---|---|
+| `UserId` | `number` | The player's Roblox UserId |
+| `Username` | `string` | The player's username |
+| `DisplayName` | `string` | The player's display name |
+| `AccountAge` | `number` | Days since account creation |
+| `MembershipType` | `string` | Membership enum as string |
+| `Platform` | `string` | `"Desktop"`, `"Mobile"`, `"Tablet"`, `"Console"`, `"VR"`, or `"Unknown"` |
+| `Locale` | `string?` | Player's locale identifier |
+| `JoinTime` | `number` | Unix timestamp in milliseconds |
+| `SessionId` | `string` | Server session identifier |
+
+</Expandable>
+
+## Platform Detection
+
+The SDK detects the player's platform using `UserInputService`:
+
+| Platform | Detection Logic |
+|---|---|
+| **VR** | `VREnabled` is true |
+| **Mobile** | `TouchEnabled` is true, `MouseEnabled` is false |
+| **Console** | `GamepadEnabled` is true, `KeyboardEnabled` is false |
+| **Tablet** | `TouchEnabled` and `KeyboardEnabled` are both true |
+| **Desktop** | Default (keyboard + mouse) |
+
+<Note>
+Platform detection runs server-side. On the server, `UserInputService` reflects the server's capabilities, not individual clients. For per-player platform data, the SDK captures this at join time using the best available heuristic.
+</Note>
+
+## Signals
+
+| Signal | Parameters | Description |
+|---|---|---|
+| `Upview.OnPlayerJoined` | `PlayerContext` | Fired when a player joins and their context is prepared |
+| `Upview.OnPlayerLeft` | `Player` | Fired when a player leaves |
+
+```lua
+Upview.OnPlayerJoined:Connect(function(context)
+    print(context.Username .. " joined from " .. context.Platform)
+end)
+
+Upview.OnPlayerLeft:Connect(function(player)
+    print(player.Name .. " left the game")
+end)
+```
+
+## Server Heartbeats
+
+The SDK sends a heartbeat to the Upview API every 60 seconds. Each heartbeat includes:
+
+- SDK version
+- Place ID and Game ID
+- Server ID (Roblox JobId)
+- Current player count
+
+This keeps your dashboard's "servers online" count accurate and provides uptime data.
+
+## Cleanup
+
+When a player leaves, the SDK:
+
+1. Fires `OnPlayerLeft`
+2. Tracks a `player_left` event with session duration and last position
+3. Calls `Cleanup(player)` on every registered service
+4. Removes the player's context from memory
+
+This cleanup happens automatically. You don't need to manage it.
+
+## Server Shutdown
+
+When the server shuts down, the SDK:
+
+1. Calls `Upview:Stop()` via `game:BindToClose()`
+2. Stops all services
+3. Flushes all remaining queued events synchronously
+4. Disconnects all event listeners
+
+This ensures no data is lost on shutdown.
+
+<CardGroup cols={2}>
+  <Card title="Configuration" icon="sliders" href="/sdk-reference/configuration">
+    All available config options.
+  </Card>
+  <Card title="Installation" icon="download" href="/sdk-reference/installation">
+    Getting the SDK into your game.
+  </Card>
+</CardGroup>

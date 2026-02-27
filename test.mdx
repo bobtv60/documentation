@@ -1,0 +1,176 @@
+---
+title: "Initialisation"
+description: "Setting up the SDK with configuration options."
+---
+
+The SDK is initialised by calling `Upview:Init(config)` followed by `Upview:Start()`. Init configures the SDK. Start begins collecting data and connecting services.
+
+## `Upview:Init(config)`
+
+Sets up the SDK with your configuration. Returns the SDK instance so you can chain `:Start()`.
+
+<ParamField path="config" type="UpviewConfig" required>
+  A table containing your API key and optional configuration overrides.
+</ParamField>
+
+<ParamField path="config.ApiKey" type="string" required>
+  Your Upview API key. Starts with `uv_live_` or `uv_test_`. Get this from your [dashboard](https://dash.upview.dev).
+</ParamField>
+
+<ParamField path="config.BaseUrl" type="string">
+  Override the API endpoint URL. You don't need to set this unless you're running a self-hosted Upview instance.\
+  **Default:** `"https://sdk.upview.dev/v1"`
+</ParamField>
+
+<ParamField path="config.Environment" type="string">
+  Tag events with an environment label. Valid values: `"Development"`, `"Staging"`, `"Production"`.\
+  **Default:** `"Production"`
+</ParamField>
+
+<ParamField path="config.FlushInterval" type="number">
+  Seconds between automatic batch flushes. Lower values mean data reaches the dashboard faster, but generate more HTTP requests.\
+  **Default:** `30`
+</ParamField>
+
+<ParamField path="config.MaxBatchSize" type="number">
+  Maximum events per batch. When the queue reaches this count, it flushes immediately regardless of the flush interval.\
+  **Default:** `50`
+</ParamField>
+
+<ParamField path="config.MaxRetries" type="number">
+  Number of retry attempts for failed HTTP requests. Uses exponential backoff.\
+  **Default:** `3`
+</ParamField>
+
+<ParamField path="config.RetryBaseDelay" type="number">
+  Base delay in seconds for exponential backoff. Doubles on each retry, capped at 60 seconds.\
+  **Default:** `2`
+</ParamField>
+
+<ParamField path="config.EnableDebugLogs" type="boolean">
+  Prints detailed SDK activity to the Output window. Turn this on during development, off in production.\
+  **Default:** `false`
+</ParamField>
+
+<ParamField path="config.EnableTelemetry" type="boolean">
+  Collects performance metrics (FPS, memory, instance count) automatically.\
+  **Default:** `true`
+</ParamField>
+
+<ParamField path="config.EnableHeatmaps" type="boolean">
+  Tracks player positions, zones, and spatial events automatically.\
+  **Default:** `true`
+</ParamField>
+
+<ParamField path="config.EnableFeedback" type="boolean">
+  Enables the feedback form system, including schema polling and RemoteEvent setup.\
+  **Default:** `true`
+</ParamField>
+
+<ParamField path="config.EnableErrorTracking" type="boolean">
+  Captures unhandled Lua errors automatically via `ScriptContext.Error` and `LogService.MessageOut`.\
+  **Default:** `true`
+</ParamField>
+
+### Return Value
+
+<ResponseField name="Upview" type="Upview">
+  Returns the SDK instance. This lets you chain `:Start()` directly.
+</ResponseField>
+
+### Example
+
+<CodeGroup>
+
+```lua Basic Init
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Upview = require(ReplicatedStorage.Upview)
+
+Upview:Init({
+    ApiKey = "uv_live_abc123...",
+}):Start()
+```
+
+
+```lua Full Configuration
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Upview = require(ReplicatedStorage.Upview)
+
+Upview:Init({
+    ApiKey = "uv_live_abc123...",
+    Environment = "Production",
+    FlushInterval = 30,
+    MaxBatchSize = 50,
+    MaxRetries = 3,
+    RetryBaseDelay = 2,
+    EnableDebugLogs = false,
+    EnableTelemetry = true,
+    EnableHeatmaps = true,
+    EnableFeedback = true,
+    EnableErrorTracking = true,
+}):Start()
+```
+
+</CodeGroup>
+
+### Behaviour
+
+- **Called once:** If you call `Init()` a second time, it logs a warning and returns the existing instance. The SDK does not reinitialise.
+- **Validation:** On the server, it checks that `ApiKey` is non-empty. On the client, no API key is required (the client uses RemoteEvents to communicate with the server).
+- **Authentication:** `Init()` sends a single authentication request to verify your API key. If the request fails (e.g. no internet in Studio), the SDK continues in offline mode and logs a warning.
+- **Chaining:** `Init()` returns the SDK instance, so you can call `Upview:Init(config):Start()` in one line.
+
+<Note>
+  Call `Init()` at the top of a Script in `ServerScriptService`, before any other code that uses the SDK. The SDK won't process events until both `Init()` and `Start()` have been called.
+</Note>
+
+## `Upview:Start()`
+
+Starts all enabled services and begins data collection. This is where the SDK connects to Roblox events, starts tracking players, and begins the flush loop.
+
+```lua
+Upview:Start()
+```
+
+What `Start()` does:
+
+1. Starts the DataQueue flush loop (sends batched events on the configured interval)
+2. Initialises and starts all enabled services (Telemetry, Heatmap, Feedback)
+3. Begins tracking player joins and leaves automatically
+4. Sends server heartbeats every 60 seconds
+5. Binds to `game:BindToClose()` to flush remaining data on shutdown
+
+<Warning>
+  Do not call `Start()` before `Init()`. If the SDK status is not `"Ready"`, `Start()` logs a warning and does nothing.
+</Warning>
+
+## `Upview:Stop()`
+
+Stops all services gracefully. Disconnects all event listeners, stops the flush loop, cancels heartbeats, and sends a final flush of queued data.
+
+```lua
+Upview:Stop()
+```
+
+You rarely need to call this yourself — the SDK automatically stops on server shutdown via `BindToClose`. Use it if you need to disable the SDK mid-session.
+
+## `Upview:Destroy()`
+
+Permanently destroys the SDK instance. Calls `Stop()`, then cleans up all services, signals, and internal state. After calling `Destroy()`, the SDK cannot be reused.
+
+```lua
+Upview:Destroy()
+```
+
+## What Happens If Init Is Never Called
+
+Every SDK method checks the internal status before executing. If `Init()` has not been called, methods like `TrackEvent()`, `ShowFeedbackForm()`, and `GetService()` silently return `nil` or do nothing. No errors are thrown.
+
+<CardGroup cols={2}>
+  <Card icon="sliders" href="/sdk-reference/configuration" title="Configuration Reference">
+    Full list of every config option with defaults.
+  </Card>
+  <Card icon="bolt" href="/sdk-reference/events" title="Custom Events">
+    Track game-specific events.
+  </Card>
+</CardGroup>
