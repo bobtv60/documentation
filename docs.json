@@ -37,26 +37,26 @@
           {
             "group": "Getting Started",
             "pages": [
-              "ov",
-              "untitled-page",
-              "test"
+              "sdk-reference/overview",
+              "sdk-reference/installation",
+              "sdk-reference/initialisation"
             ]
           },
           {
             "group": "Services",
             "pages": [
-              "heatmaps",
-              "feedback-service",
-              "error-tracking",
-              "s",
-              "s-1",
-              "s-3"
+              "sdk-reference/heatmaps",
+              "sdk-reference/feedback-service",
+              "sdk-reference/error-tracking",
+              "sdk-reference/events",
+              "sdk-reference/telemetry",
+              "sdk-reference/sessions"
             ]
           },
           {
             "group": "Reference",
             "pages": [
-              "s-2"
+              "sdk-reference/configuration"
             ]
           }
         ]
