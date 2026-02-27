@@ -9,116 +9,21 @@
   },
   "favicon": "/favicon.svg",
   "navigation": {
-    "tabs": [
-      {
-        "tab": "Guides",
-        "groups": [
-          {
-            "group": "Getting started",
-            "pages": [
-              "index",
-              "essentials/why-upview",
-              "quickstart"
-            ]
-          },
-          {
-            "group": "AI Features",
-            "pages": [
-              "ai-tools/intelligence"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Roblox SDK",
-        "groups": [
-          {
-            "group": "Overview",
-            "pages": [
-              "feedback/introduction"
-            ]
-          },
-          {
-            "group": "Integration Methods",
-            "pages": [
-              "feedback/visual-builder",
-              "feedback/lua-dsl",
-              "feedback/headless-api"
-            ]
-          },
-          {
-            "group": "Customization",
-            "pages": [
-              "feedback/theming",
-              "feedback/context-capture"
-            ]
-          },
-          {
-            "group": "Spatial Intelligence",
-            "pages": [
-              "feedback/heatmaps"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Dashboard",
-        "groups": [
-          {
-            "group": "Analytics",
-            "pages": [
-              "dashboard/feedback-analysis",
-              "dashboard/spatial-intelligence"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "Error Monitoring",
-        "groups": [
-          {
-            "group": "Overview",
-            "pages": [
-              "error-monitoring/introduction"
-            ]
-          }
-        ]
-      },
-      {
-        "tab": "API reference",
-        "groups": [
-          {
-            "group": "API documentation",
-            "pages": [
-              "api-reference/introduction"
-            ]
-          },
-          {
-            "group": "Endpoint examples",
-            "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
-            ]
-          }
-        ]
-      }
-    ],
     "global": {
       "anchors": [
         {
           "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
+          "icon": "book-open-cover",
+          "href": "https://mintlify.com/docs"
         },
         {
           "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "icon": "newspaper",
+          "href": "https://mintlify.com/blog"
         }
       ]
-    }
+    },
+    "groups": []
   },
   "logo": {
     "light": "/logo/light.svg",
@@ -127,8 +32,8 @@
   "navbar": {
     "links": [
       {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
+        "label": "Contact Support",
+        "href": "mailto:hello@upview.dev"
       }
     ],
     "primary": {

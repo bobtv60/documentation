@@ -1,51 +1,64 @@
 ---
 title: "Why Upview?"
-description: "Discover why the top Roblox games rely on Upview's intelligence engine to scale."
+description: "What Upview is and why it exists."
 ---
 
-Upview isn't just a feedback tool; it's a dedicated intelligence engine for your game. We handle the heavy lifting of capturing, translating, and analyzing player data so you can focus on building a better experience.
+Upview is an analytics platform for Roblox games. You install the SDK in 
+your game, and data from your players starts appearing in your dashboard. 
+But it's more than just fancy charts.
 
-## The Feedback Loop
+The main reason Upview was created is that most Roblox developers have no 
+reliable way to understand what's happening in their game from the player's 
+perspective. Discord feedback is hard to read at volume, Roblox's built-in 
+analytics don't show you where or why things go wrong, and errors often go 
+unreported entirely. Upview is the only tool built specifically to fix that, 
+for Roblox, and nothing else.
 
-At its core, Upview consists of three powerful layers that work together to turn raw player sentiment into actionable developer tasks.
+## Features at a glance
 
-### 1. High-Performance SDK
-The Upview SDK is built specifically for Roblox, engineered for zero-latency impact on your game loop.
-- **Context-Aware Analytics**: Every feedback submission automatically captures hardware specs, FPS, server memory, and player location. 
-- **The Visual Builder**: Build and deploy complex feedback forms from your web dashboard in seconds—no game updates required.
-- **Deep Lua Integration**: Use our declarative DSL to build custom, code-first UI that still benefits from our global backend.
+**Feedback** — Players submit reports through forms you create in the 
+dashboard. Each submission is automatically categorised, urgency scored, 
+and grouped with similar reports. Instead of reading 200 Discord messages, 
+you see "43 players reported a hitbox issue this week, urgency 8/10."
 
-### 2. Autonomous AI Classification (`ai-classifier`)
-Once feedback hits our servers, it is immediately processed by our **AI Classification Pipeline**. This isn't just keyword matching—it's high-fidelity inference running on dedicated hardware.
+**Heatmaps** — Player positions, deaths, and emotion events are plotted 
+directly onto your map. You upload a screenshot and align it once — from 
+there, every event appears in the right location. If 80 players are 
+rage-quitting in the same zone, you'll see exactly where.
 
-- **Global Player Support**: Our translator automatically converts feedback from over 100 languages into English, ensuring you never miss a bug from your global audience.
-- **Human-Centric Sentiment**: using optimized VADER analysis, we detect the emotional weight of every response. 
-- **Urgency Scoring**: Upview understands the difference between *"The game is a bit laggy"* and *"THE SHOP IS COMPLETELY BROKEN"*. We calculate an urgency score (0-1.0) so your team handles critical issues first.
-- **Auto-Categorization**: Feedback is instantly tagged into categories like `BUG`, `LAG`, `SUGGESTION`, `BALANCE`, or `TOXICITY`.
+**Error monitoring** — Errors are captured automatically and grouped by 
+fingerprint so the same crash doesn't appear as 500 separate issues. You 
+can generate an AI diagnosis that identifies the root cause and suggests 
+a specific fix based on the actual stack trace — not just "something broke."
 
-### 3. Upview Intelligence (`ai-intelligence`)
-The final layer turns your dataset into high-level strategy. This is where your data becomes a competitive advantage.
+**Upview Intelligence** — Generate a Deep Audit that reads your data and 
+tells you what to fix first, this week, and next update — in plain English. 
+There's also a chat interface where you can ask questions like "why are 
+players leaving after 4 minutes" and get answers based on your actual data.
 
-- **Interactive AI Chat**: Talk to your game data. Ask questions like *"What are players saying about the new weapon?"* or *"Summarize today's lag issues."*
-- **Thematic Clustering**: Our AI "titrates" your data, automatically grouping hundreds of similar responses into named trends (e.g., *"Shop Interaction Bug"*), so you see the big picture without reading every message.
-- **Deep Audit Reports**: Generate professional-grade audits of your game's health, analyzing trends over weeks or months to help plan your next major update.
+## Who it's for
 
-<Card title="Learn more about Intelligence Features" icon="brain" href="/ai-tools/intelligence">
-  Explore our deep reports, automated audits, and AI-driven data chat.
-</Card>
+Upview is designed to save developers time. It's most useful for games 
+with active players — if your game has no players yet, the dashboard will 
+be empty until traffic comes in.
 
----
+## Why it costs money
 
-## Why Choose Upview?
+Running scalable and reliable infrastructure has real costs, especially 
+the AI features. A 7-day free trial is available so you can see whether 
+it's useful before subscribing. No credit card required.
 
-### Save Developer Time
-Stop spending hours scrolling through Discord channels or manual spreadsheets. Upview presents you with the most important data points on a silver platter.
+## The SDK
 
-### Reduce Churn
-Identify game-breaking bugs and balance issues minutes after an update goes live. By being proactive, you keep your players happy and your CCU stable.
+The SDK is fully open source. You can read every line before adding it 
+to your game.
 
-### Data-Driven Roadmaps
-Don't guess what your players want next. Use actual data and AI-driven summaries to prioritize features that move the needle.
-
-### Enterprise-Grade Infrastructure
-Built on a robust Python/Next.js stack with Supabase and specialized AI workers, Upview scales with you—whether you have 100 players or 100,000.
+<CardGroup cols={2}>
+  <Card icon="rocket" href="/documentation/getting-started/quickstart" 
+  title="Get started">
+    Install the SDK.
+  </Card>
+  <Card icon="gauge" href="https://dash.upview.dev" title="Dashboard">
+    Open your workspace.
+  </Card>
+</CardGroup>
