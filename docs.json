@@ -25,11 +25,15 @@
     },
     "groups": [
       {
-        "group": "Get Started",
+        "group": "Good to know",
         "pages": [
           "index",
           "essentials/why-upview"
         ]
+      },
+      {
+        "group": "SDK Reference",
+        "pages": []
       }
     ]
   },
