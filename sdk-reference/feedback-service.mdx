@@ -129,37 +129,49 @@ FeedbackService:PreloadSchema("feature_request")
 Schemas are cached for 600 seconds (10 minutes). The service also polls for updates every 300 seconds. If you update a form in the dashboard, live games pick it up within 5 minutes.
 </Tip>
 
-## Headless Submissions
+## Headless & Custom UI
+
+The `FeedbackService` supports a "headless" mode, allowing you to submit structured feedback data directly to Upview without using the built-in UI generator. This is perfect for building your own fully-custom ScreenGuis while still leveraging Upview's analytics, sentiment analysis, and dashboard.
 
 ### `Upview:SubmitFeedback(slug, responses, player?, context?)`
 
-Submit feedback programmatically without showing a form UI. Useful for collecting structured data from game events.
+Sends feedback data directly to the Upview API. Can be called from both Client and Server scripts.
 
 <ParamField path="slug" type="string" required>
-  The form slug to submit against.
+  The form slug to group this feedback under in your dashboard. If the form doesn't exist, it will be automatically tracked under this identifier.
 </ParamField>
 
 <ParamField path="responses" type="table" required>
-  A table mapping field IDs to response values.
+  A table mapping field labels (as keys) to response values.
 </ParamField>
 
 <ParamField path="player" type="Player?">
-  The player associated with the submission. If provided, player context (username, platform, etc.) is included.
+  The player associated with the submission. Providing this automatically enriches the feedback with player context (Platform, Account Age, etc.).
 </ParamField>
 
 <ParamField path="context" type="table?">
-  Optional extra context data.
+  Optional extra context data (e.g. `trigger = "end_of_round"`).
 </ParamField>
 
 ```lua
--- Submit feedback without showing a form
-Upview:SubmitFeedback("quick_rating", {
-    overall_rating = 4,
-    would_recommend = true,
-}, player, {
-    trigger = "auto_prompt",
-})
+-- Linking a custom "Submit" button to Upview
+submitBtn.MouseButton1Click:Connect(function()
+    local responses = {
+        ["Rating"] = 5,
+        ["Comments"] = "Amazing experience!",
+        ["Would Recommend"] = true
+    }
+    
+    Upview:SubmitFeedback("custom_ux_survey", responses, player)
+    
+    -- Provide visual feedback to the player
+    submitBtn.Text = "Feedback Received!"
+end)
 ```
+
+<Tip>
+  **Dashboard Tip:** The keys in your `responses` table (e.g., `"Rating"`) will appear as the "Questions" in your dashboard reports. Use human-readable keys for the best reporting experience.
+</Tip>
 
 ## Defining Forms from Code
 
