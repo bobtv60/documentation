@@ -3,9 +3,14 @@ title: Feedback
 description: Collecting structured player feedback with dynamic forms.
 ---
 
-The FeedbackService lets you show in-game feedback forms to players. Forms are defined in the Upview dashboard (or via the SDK) and rendered as native Roblox UI inside the game. Submissions are sent to your dashboard with full player context.
+The `FeedbackService` allows you to collect structured player feedback directly in-game. You can implement feedback in two ways:
 
-Access it via `Upview:GetService("Feedback")`.
+1.  **Managed (Visual Builder)**: Design forms in the [Upview Dashboard](https://dash.upview.dev). The SDK automatically renders the UI, handles navigation, and manages themes.
+2.  **Headless (Custom UI)**: Build your own custom UI in Roblox Studio and use the SDK to pipe responses to your dashboard. This provides 100% aesthetic control.
+
+Regardless of your choice, all feedback is automatically enriched with player context (platform, account age, session duration) and analyzed for sentiment.
+
+Access the service via `Upview:GetService("Feedback")`.
 
 ```lua
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -243,21 +248,9 @@ Supported operators: `"equals"`, `"not_equals"`, `"greater_than"`, `"less_than"`
 
 ## Theming
 
-Forms support custom theming via the dashboard or the `DefineForm` API:
+Forms support custom theming via the Upview dashboard. You can customize background colors, text styles, and border radius to match your game's aesthetic.
 
-```lua
-Upview:DefineForm("branded_survey", {
-    title = "Game Survey",
-    theme = {
-        backgroundColor = "#1a1a2e",
-        textColor = "#ffffff",
-        accentColor = "#e94560",
-        borderRadius = 12,
-        fontFamily = "GothamBold",
-    },
-    fields = { ... },
-})
-```
+Once a theme is saved in the dashboard, the SDK will automatically apply it the next time the form is rendered.
 
 ## Signals
 
