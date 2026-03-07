@@ -173,42 +173,6 @@ end)
   **Dashboard Tip:** The keys in your `responses` table (e.g., `"Rating"`) will appear as the "Questions" in your dashboard reports. Use human-readable keys for the best reporting experience.
 </Tip>
 
-## Defining Forms from Code
-
-### `Upview:DefineForm(slug, config)` / `FeedbackService:DefineForm(slug, config)`
-
-Creates or updates a form definition via the API. The form becomes available in your dashboard.
-
-<ParamField path="slug" type="string" required>
-  A unique identifier for the form.
-</ParamField>
-
-<ParamField path="config" type="table" required>
-  Form configuration including title, description, fields/pages, and theme.
-</ParamField>
-
-```lua
-Upview:DefineForm("quick_survey", {
-    title = "Quick Survey",
-    description = "Tell us what you think",
-    fields = {
-        {
-            id = "rating",
-            type = "StarRating",
-            label = "How would you rate this game?",
-            required = true,
-            max = 5,
-        },
-        {
-            id = "feedback",
-            type = "TextInput",
-            label = "Any comments?",
-            placeholder = "Type here...",
-            required = false,
-        },
-    },
-})
-```
 
 ## Form Field Types
 
