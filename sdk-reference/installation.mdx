@@ -1,16 +1,54 @@
 ---
-title: Feedback
-description: Collecting structured player feedback with dynamic forms.
+title: Installation
+description: Get the Upview SDK into your Roblox game.
 ---
 
-The `FeedbackService` allows you to collect structured player feedback directly in-game. You can implement feedback in two ways:
+The Upview SDK is a Luau ModuleScript that runs in your Roblox game server. It collects player analytics, heatmap data, feedback, and error reports — then sends everything to your Upview dashboard.
 
-1.  **Managed (Visual Builder)**: Design forms in the [Upview Dashboard](https://dash.upview.dev). The SDK automatically renders the UI, handles navigation, and manages themes.
-2.  **Headless (Custom UI)**: Build your own custom UI in Roblox Studio and use the SDK to pipe responses to your dashboard. This provides 100% aesthetic control.
+This page covers how to install it and verify data is flowing.
 
-Regardless of your choice, all feedback is automatically enriched with player context (platform, account age, session duration) and analyzed for sentiment.
+## Prerequisites
 
-Access the service via `Upview:GetService("Feedback")`.
+Before installing, make sure:
+
+- You have a Roblox game open in Roblox Studio
+- You have an Upview workspace with an API key (get one at [upview.dev](https://dash.upview.dev))
+- **HttpService is enabled** in your game
+
+<Warning>
+HttpService must be enabled or the SDK cannot send data. Go to **Game Settings → Security → Allow HTTP Requests** and turn it on.
+</Warning>
+
+## Installation
+
+<Tabs>
+  <Tab title="Studio Plugin">
+    The Upview Studio plugin handles everything automatically — it installs the SDK files, creates the loader script, and validates your API key.
+
+    <Steps>
+      <Step title="Install the Plugin">
+        Open Roblox Studio, go to **Plugins → Manage Plugins**, search for **Upview**, and click **Install**.
+      </Step>
+      <Step title="Open the Plugin">
+        Click the **Upview** button in the Plugins toolbar.
+      </Step>
+      <Step title="Enter Your API Key">
+        Paste your API key from [your dashboard](https://dash.upview.dev). Your key starts with `uv_live_` or `uv_test_`.
+      </Step>
+      <Step title="Click Sync & Install SDK">
+        The plugin will validate your key, install the SDK into `ReplicatedStorage`, and create a loader script in `ServerScriptService`.
+      </Step>
+      <Step title="Test the Connection">
+        Click **Play** in Studio. Check the Output window for `[Upview] SDK loaded and running!`. Your dashboard will show the connection within a few seconds.
+      </Step>
+    </Steps>
+  </Tab>
+
+</Tabs>
+
+## Minimal Working Example
+
+This is the smallest script that gets data flowing. Place it in `ServerScriptService`:
 
 ```lua
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -18,322 +56,72 @@ local Upview = require(ReplicatedStorage.Upview)
 
 Upview:Init({
     ApiKey = "uv_live_abc123...",
-    EnableFeedback = true,
 }):Start()
 
-local FeedbackService = Upview:GetService("Feedback")
+-- That's it. The SDK now tracks:
+-- ✓ Player joins and leaves
+-- ✓ Session duration and platform
+-- ✓ Performance metrics (FPS, memory)
+-- ✓ Unhandled Lua errors
+-- ✓ Player positions for heatmaps
 ```
-
-## How Forms Work
-
-1. You create a form in the [Upview dashboard](https://dash.upview.dev) under **Feedback → Forms**
-2. Each form gets a **slug** (e.g. `"post_game_survey"`)
-3. Your game server calls `ShowForm(player, slug)` to display the form
-4. The SDK fetches the form schema from the API, sends it to the client via RemoteEvent, and renders the UI
-5. When the player submits, responses go back to the server via RemoteEvent, then to the Upview API
-6. The submission appears in your dashboard with player context (username, platform, account age, session duration)
 
 <Note>
-Forms are rendered entirely from their JSON schema. When you update a form in the dashboard, the changes are picked up automatically — no game update required.
+After calling `Init()` and `Start()`, the SDK begins collecting data automatically. You don't need to write any additional code for basic analytics.
 </Note>
 
-## Showing a Form
+## What Gets Installed
 
-### `FeedbackService:ShowForm(player, formSlug, context?)`
-
-Displays a feedback form to a specific player.
-
-<ParamField path="player" type="Player" required>
-  The player to show the form to.
-</ParamField>
-
-<ParamField path="formSlug" type="string" required>
-  The slug of the form as defined in your dashboard. Example: `"post_game_survey"`.
-</ParamField>
-
-<ParamField path="context" type="table?">
-  Optional context data attached to the submission. Flat key-value pairs. Useful for tracking what triggered the form.
-</ParamField>
-
-<ResponseField name="success" type="boolean">
-  Returns `true` if the form was shown. Returns `false` if the schema fetch failed, the form is inactive, or the player already has an open form.
-</ResponseField>
-
-```lua
--- Show a form after a round ends
-local success = FeedbackService:ShowForm(player, "post_game_survey", {
-    trigger = "round_end",
-    level = 5,
-})
-
-if not success then
-    warn("Could not show feedback form")
-end
+```
+ReplicatedStorage/
+└── Upview/
+    ├── init.lua           -- Entry point (requires Core/Upview)
+    ├── Core/
+    │   ├── Upview.lua     -- Main SDK controller
+    │   └── DataQueue.lua  -- Batching and HTTP pipeline
+    ├── Services/
+    │   ├── TelemetryService.lua   -- Metrics and error capture
+    │   ├── HeatmapService.lua     -- Position and zone tracking
+    │   └── FeedbackService.lua    -- Feedback form system
+    ├── Components/
+    │   └── UIBinder.lua   -- Feedback form UI renderer
+    └── Shared/
+        ├── Types.lua      -- Type definitions
+        ├── Signal.lua     -- Event system
+        └── Utils.lua      -- Utility functions
 ```
 
-### What can go wrong
+## Common Mistakes
 
-- **Schema not found:** The slug doesn't match any form in your dashboard. `ShowForm` returns `false`.
-- **Form is inactive:** The form exists but is marked inactive in the dashboard. `ShowForm` returns `false`.
-- **Player already has an open form:** Only one form per player at a time. `ShowForm` returns `false`.
-- **Service not ready:** The SDK hasn't finished initialising. `ShowForm` returns `false`.
+<AccordionGroup>
+  <Accordion title="Using a LocalScript instead of a Script">
+    The SDK sends HTTP requests using `HttpService:RequestAsync()`, which only works on the server. If you `require` the SDK from a LocalScript, it will not send data.
 
-## Closing a Form
+    Always use a **Script** in **ServerScriptService**.
+  </Accordion>
+  <Accordion title="HttpService not enabled">
+    If you see errors about HTTP requests being blocked, go to **Game Settings → Security** and enable **Allow HTTP Requests**. This is off by default in new places.
+  </Accordion>
+  <Accordion title="Wrong API key">
+    API keys start with `uv_live_` (production) or `uv_test_` (development). If you paste the wrong key, the SDK will log a warning and continue in offline mode — no data will reach your dashboard.
+  </Accordion>
+  <Accordion title="API key exposed on the client">
+    Never put your API key in a LocalScript, ModuleScript in ReplicatedStorage that clients can read, or anywhere accessible from the client. The SDK handles server-to-client communication via RemoteEvents — the API key stays server-side.
+  </Accordion>
+  <Accordion title="Calling SDK methods before Init">
+    All SDK methods silently return if called before `Init()` and `Start()`. Make sure your init script runs before any other script that uses the SDK.
+  </Accordion>
+</AccordionGroup>
 
-### `FeedbackService:CloseForm(player)`
-
-Forces a form to close for a player. The form is destroyed and a `feedback_form_closed` event is tracked.
-
-<ParamField path="player" type="Player" required>
-  The player whose form should be closed.
-</ParamField>
-
-```lua
-FeedbackService:CloseForm(player)
-```
-
-## Getting the Active Form
-
-### `FeedbackService:GetActiveForm(player)`
-
-Returns the currently open form instance for a player, or `nil`.
-
-<ParamField path="player" type="Player" required>
-  The player to check.
-</ParamField>
-
-<ResponseField name="formInstance" type="FormInstance?">
-  The form instance with schema, responses, and metadata. `nil` if no form is open.
-</ResponseField>
-
-```lua
-local activeForm = FeedbackService:GetActiveForm(player)
-if activeForm then
-    print("Player has form open:", activeForm.Schema.Title)
-end
-```
-
-## Preloading Schemas
-
-### `FeedbackService:PreloadSchema(formSlug)`
-
-Fetches and caches a form schema in the background. Useful for forms you know you'll show later — avoids the HTTP delay when `ShowForm` is called.
-
-<ParamField path="formSlug" type="string" required>
-  The slug of the form to preload.
-</ParamField>
-
-```lua
--- Preload forms at startup
-FeedbackService:PreloadSchema("post_game_survey")
-FeedbackService:PreloadSchema("bug_report")
-FeedbackService:PreloadSchema("feature_request")
-```
-
-<Tip>
-Schemas are cached for 600 seconds (10 minutes). The service also polls for updates every 300 seconds. If you update a form in the dashboard, live games pick it up within 5 minutes.
-</Tip>
-
-## Headless & Custom UI
-
-The `FeedbackService` supports a "headless" mode, allowing you to submit structured feedback data directly to Upview without using the built-in UI generator. This is perfect for building your own fully-custom ScreenGuis while still leveraging Upview's analytics, sentiment analysis, and dashboard.
-
-### `Upview:SubmitFeedback(slug, responses, player?, context?)`
-
-Sends feedback data directly to the Upview API. Can be called from both Client and Server scripts.
-
-<ParamField path="slug" type="string" required>
-  The form slug to group this feedback under in your dashboard. **If the form doesn't exist, it will be automatically created** in your dashboard with a "Headless" badge.
-</ParamField>
-
-<ParamField path="responses" type="table" required>
-  A table mapping field labels (as keys) to response values.
-</ParamField>
-
-<ParamField path="player" type="Player?">
-  The player associated with the submission. Providing this automatically enriches the feedback with player context (Platform, Account Age, etc.).
-</ParamField>
-
-<ResponseField name="success" type="boolean">
-  Returns `true` if the submission was successful. Note: This call **yields** while waiting for the API response.
-</ResponseField>
-
-<ResponseField name="errorMessage" type="string?">
-  An optional error message if the submission failed.
-</ResponseField>
-
-```lua
--- Linking a custom "Submit" button to Upview
-submitBtn.MouseButton1Click:Connect(function()
-    local responses = {
-        ["Rating"] = 5,
-        ["Comments"] = textBox.Text,
-        ["Would Recommend"] = true
-    }
-    
-    submitBtn.Text = "Submitting..."
-    
-    -- SubmitFeedback yields and returns the result
-    local success, err = Upview:SubmitFeedback("custom_ux_survey", responses, player)
-    
-    if success then
-        submitBtn.Text = "Feedback Received!"
-        task.wait(1)
-        screenGui:Destroy() -- Close custom UI on success
-    else
-        submitBtn.Text = "Error: " .. (err or "Unknown")
-    end
-end)
-```
-
-<Tip>
-  **Yielding Call:** `SubmitFeedback` waits for the server to acknowledge the request. If you want to run it in the background without blocking your script, wrap it in `task.spawn()`.
-</Tip>
-
-<Tip>
-  **Dashboard Tip:** The keys in your `responses` table (e.g., `"Rating"`) will appear as the "Questions" in your dashboard reports. Use human-readable keys for the best reporting experience.
-</Tip>
-
-
-## Form Field Types
-
-Forms support these field types:
-
-| Type | Description | Key Properties |
-|---|---|---|
-| `StarRating` | 1–5 star rating | `max` |
-| `MultipleChoice` | Single selection from a list | `options` (string array) |
-| `TextInput` | Free-text input | `placeholder` |
-| `Boolean` | Yes/No toggle | — |
-| `Slider` | Numeric slider | `min`, `max`, `sliderStep` |
-| `Toggle` | On/Off switch | — |
-| `Emoji` | Emoji reaction picker | `emojiOptions` (string array) |
-| `Header` | Display-only heading text | — |
-| `Paragraph` | Display-only paragraph text | — |
-| `Divider` | Visual separator line | — |
-| `Spacer` | Empty space between fields | — |
-| `Image` | Display-only image | `imageUrl` |
-
-## Multi-Page Forms
-
-Forms can have multiple pages. When a form has pages, players navigate through them in sequence.
-
-```json
-{
-    "slug": "onboarding_survey",
-    "title": "Welcome Survey",
-    "pages": [
-        {
-            "id": "page_1",
-            "title": "About You",
-            "elements": [
-                { "id": "experience", "type": "MultipleChoice", "label": "How long have you played Roblox?", "options": ["< 1 year", "1-3 years", "3+ years"] }
-            ]
-        },
-        {
-            "id": "page_2",
-            "title": "Game Feedback",
-            "elements": [
-                { "id": "rating", "type": "StarRating", "label": "Rate this game", "max": 5 }
-            ]
-        }
-    ]
-}
-```
-
-## Conditional Logic
-
-Fields can be shown or hidden based on other field values using conditional rules:
-
-```lua
-{
-    id = "follow_up",
-    type = "TextInput",
-    label = "What went wrong?",
-    conditional = {
-        showIf = {
-            fieldId = "rating",
-            operator = "less_than",
-            value = 3,
-        },
-    },
-}
-```
-
-Supported operators: `"equals"`, `"not_equals"`, `"greater_than"`, `"less_than"`, `"contains"`, `"not_contains"`.
-
-## Theming
-
-Forms support custom theming via the Upview dashboard. You can customize background colors, text styles, and border radius to match your game's aesthetic.
-
-Once a theme is saved in the dashboard, the SDK will automatically apply it the next time the form is rendered.
-
-## Signals
-
-| Signal | Parameters | Description |
-|---|---|---|
-| `OnFormOpened` | `Player`, `FeedbackFormSchema` | A form was displayed to a player |
-| `OnFormClosed` | `Player`, `string` | A form was closed (parameter is the form slug) |
-| `OnFormCompleted` | `Player`, `FeedbackSubmission` | A form was submitted |
-| `OnSchemaUpdated` | `FeedbackFormSchema` | A cached schema was refreshed from the API |
-
-### Rewarding Players for Feedback
-
-```lua
-FeedbackService.OnFormCompleted:Connect(function(player, submission)
-    -- Give coins for completing a survey
-    local leaderstats = player:FindFirstChild("leaderstats")
-    if leaderstats then
-        local coins = leaderstats:FindFirstChild("Coins")
-        if coins then
-            coins.Value += 100
-        end
-    end
-
-    -- Check for low ratings
-    if submission.Responses.overall_rating and submission.Responses.overall_rating <= 2 then
-        warn(player.Name .. " gave a low rating — consider following up")
-    end
-end)
-```
-
-## Live Updates
-
-The FeedbackService supports live form updates via Roblox's `MessagingService`. When you edit a form in the dashboard, the change is published to all running servers. Active forms are automatically closed and reopened with the updated schema.
-
-This is enabled by default when `EnableFeedback = true`.
-
-## Example: Chat-Triggered Forms
-
-```lua
-local Players = game:GetService("Players")
-
-Players.PlayerAdded:Connect(function(player)
-    player.Chatted:Connect(function(message)
-        local lower = message:lower()
-
-        if lower == "/bug" or lower == "/report" then
-            FeedbackService:ShowForm(player, "bug_report", {
-                trigger = "chat_command",
-            })
-        elseif lower == "/feedback" then
-            FeedbackService:ShowForm(player, "post_game_survey", {
-                trigger = "chat_command",
-            })
-        elseif lower == "/suggest" then
-            FeedbackService:ShowForm(player, "feature_request", {
-                trigger = "chat_command",
-            })
-        end
-    end)
-end)
-```
+<Warning>
+The SDK must only run server-side. Your API key must never be accessible from the client. The SDK handles client-side features (like feedback forms) through secure RemoteEvents — it does not expose the key.
+</Warning>
 
 <CardGroup cols={2}>
-  <Card title="Heatmaps" icon="map" href="/sdk-reference/heatmaps">
-    Track player positions spatially.
+  <Card title="Initialisation" icon="gear" href="/sdk-reference/initialisation">
+    Configure the SDK with all available options.
   </Card>
-  <Card title="Error Monitoring" icon="bug" href="/sdk-reference/error-monitoring">
-    Capture and report Lua errors.
+  <Card title="Quick Start" icon="bolt" href="/quickstart">
+    End-to-end setup walkthrough.
   </Card>
 </CardGroup>
