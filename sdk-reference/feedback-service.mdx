@@ -143,7 +143,7 @@ The `FeedbackService` supports a "headless" mode, allowing you to submit structu
 Sends feedback data directly to the Upview API. Can be called from both Client and Server scripts.
 
 <ParamField path="slug" type="string" required>
-  The form slug to group this feedback under in your dashboard. If the form doesn't exist, it will be automatically tracked under this identifier.
+  The form slug to group this feedback under in your dashboard. **If the form doesn't exist, it will be automatically created** in your dashboard with a "Headless" badge.
 </ParamField>
 
 <ParamField path="responses" type="table" required>
@@ -154,25 +154,41 @@ Sends feedback data directly to the Upview API. Can be called from both Client a
   The player associated with the submission. Providing this automatically enriches the feedback with player context (Platform, Account Age, etc.).
 </ParamField>
 
-<ParamField path="context" type="table?">
-  Optional extra context data (e.g. `trigger = "end_of_round"`).
-</ParamField>
+<ResponseField name="success" type="boolean">
+  Returns `true` if the submission was successful. Note: This call **yields** while waiting for the API response.
+</ResponseField>
+
+<ResponseField name="errorMessage" type="string?">
+  An optional error message if the submission failed.
+</ResponseField>
 
 ```lua
 -- Linking a custom "Submit" button to Upview
 submitBtn.MouseButton1Click:Connect(function()
     local responses = {
         ["Rating"] = 5,
-        ["Comments"] = "Amazing experience!",
+        ["Comments"] = textBox.Text,
         ["Would Recommend"] = true
     }
     
-    Upview:SubmitFeedback("custom_ux_survey", responses, player)
+    submitBtn.Text = "Submitting..."
     
-    -- Provide visual feedback to the player
-    submitBtn.Text = "Feedback Received!"
+    -- SubmitFeedback yields and returns the result
+    local success, err = Upview:SubmitFeedback("custom_ux_survey", responses, player)
+    
+    if success then
+        submitBtn.Text = "Feedback Received!"
+        task.wait(1)
+        screenGui:Destroy() -- Close custom UI on success
+    else
+        submitBtn.Text = "Error: " .. (err or "Unknown")
+    end
 end)
 ```
+
+<Tip>
+  **Yielding Call:** `SubmitFeedback` waits for the server to acknowledge the request. If you want to run it in the background without blocking your script, wrap it in `task.spawn()`.
+</Tip>
 
 <Tip>
   **Dashboard Tip:** The keys in your `responses` table (e.g., `"Rating"`) will appear as the "Questions" in your dashboard reports. Use human-readable keys for the best reporting experience.
