@@ -45,7 +45,6 @@
           {
             "group": "Services",
             "pages": [
-              "sdk-reference/heatmaps",
               "sdk-reference/feedback-service",
               "sdk-reference/error-tracking",
               "sdk-reference/events",
