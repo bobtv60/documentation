@@ -74,16 +74,11 @@ HttpService must be enabled or the SDK cannot send data. Go to **Game Settings �
       </Step>
     </Steps>
   </Tab>
-  <Tab title="Command Bar">
-    For a quick one-line install, paste this into the Studio Command Bar:
-
-    ```lua
-    loadstring(game:HttpGet("https://upview.dev/install.lua"))()("YOUR_API_KEY")
-    ```
-
-    This downloads and installs the SDK files automatically.
-  </Tab>
 </Tabs>
+
+<Warning>
+**Roblox Security Prompts**: When you first sync the plugin, Studio will show two permission dialogs — one for script access and one for network access to `sdk.upview.dev`. Click **Allow** on both. If the sync doesn't complete afterward, **restart Studio once** and try again. This is a known Roblox limitation with newly installed plugins.
+</Warning>
 
 ## Minimal Working Example
 
@@ -131,6 +126,16 @@ ReplicatedStorage/
 ## Common Mistakes
 
 <AccordionGroup>
+  <Accordion title="Plugin security prompts blocking sync">
+    Roblox Studio shows two permission dialogs when the Upview plugin first runs:
+
+    1. **"Allow UpviewPlugin to manage scripts"** — needed to create the SDK loader scripts
+    2. **"Allow UpviewPlugin to access sdk.upview.dev"** — needed to download SDK files
+
+    Click **Allow** on both. If the sync still fails, **restart Studio** — Roblox sometimes doesn't apply plugin permissions until the next session. In rare cases, you may need to restart twice.
+
+    You can also check your permissions in **Plugins → Manage Plugins → UpviewPlugin**.
+  </Accordion>
   <Accordion title="Using a LocalScript instead of a Script">
     The SDK sends HTTP requests using `HttpService:RequestAsync()`, which only works on the server. If you `require` the SDK from a LocalScript, it will not send data.
 
