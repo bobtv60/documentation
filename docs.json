@@ -39,7 +39,8 @@
             "pages": [
               "sdk-reference/overview",
               "sdk-reference/installation",
-              "sdk-reference/initialisation"
+              "sdk-reference/initialisation",
+              "sdk-reference/server-vs-client"
             ]
           },
           {

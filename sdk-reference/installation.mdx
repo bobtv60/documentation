@@ -3,7 +3,7 @@ title: Installation
 description: Get the Upview SDK into your Roblox game.
 ---
 
-The Upview SDK is a Luau ModuleScript that runs in your Roblox game server. It collects player analytics, heatmap data, feedback, and error reports — then sends everything to your Upview dashboard.
+The Upview SDK is a Luau ModuleScript that runs in your Roblox game server. It collects player analytics, performance metrics, feedback, and error reports — then sends everything to your Upview dashboard.
 
 This page covers how to install it and verify data is flowing.
 
@@ -22,7 +22,7 @@ HttpService must be enabled or the SDK cannot send data. Go to **Game Settings �
 ## Installation
 
 <Tabs>
-  <Tab title="Studio Plugin">
+  <Tab title="Studio Plugin (Recommended)">
     The Upview Studio plugin handles everything automatically — it installs the SDK files, creates the loader script, and validates your API key.
 
     <Steps>
@@ -43,7 +43,42 @@ HttpService must be enabled or the SDK cannot send data. Go to **Game Settings �
       </Step>
     </Steps>
   </Tab>
+  <Tab title="Manual Installation">
+    If you prefer not to use the plugin, you can install manually.
 
+    <Steps>
+      <Step title="Get the SDK">
+        Download or clone the SDK from [GitHub](https://github.com/upview-dev/sdk) and place the `Upview` folder into `ReplicatedStorage`.
+      </Step>
+      <Step title="Create a Server Script">
+        Create a new **Script** (not a LocalScript) in `ServerScriptService`. Name it something like `UpviewLoader`.
+      </Step>
+      <Step title="Add the Loader Code">
+        Paste this into your script:
+
+        ```lua
+        local ReplicatedStorage = game:GetService("ReplicatedStorage")
+        local Upview = require(ReplicatedStorage.Upview)
+
+        Upview:Init({
+            ApiKey = "your-api-key-here",
+        }):Start()
+        ```
+      </Step>
+      <Step title="Test">
+        Click Play in Studio. Check the Output window for SDK log messages. Your dashboard should show data within 30 seconds.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Command Bar">
+    For a quick one-line install, paste this into the Studio Command Bar:
+
+    ```lua
+    loadstring(game:HttpGet("https://upview.dev/install.lua"))()("YOUR_API_KEY")
+    ```
+
+    This downloads and installs the SDK files automatically.
+  </Tab>
 </Tabs>
 
 ## Minimal Working Example
@@ -63,7 +98,6 @@ Upview:Init({
 -- ✓ Session duration and platform
 -- ✓ Performance metrics (FPS, memory)
 -- ✓ Unhandled Lua errors
--- ✓ Player positions for heatmaps
 ```
 
 <Note>
@@ -81,7 +115,6 @@ ReplicatedStorage/
     │   └── DataQueue.lua  -- Batching and HTTP pipeline
     ├── Services/
     │   ├── TelemetryService.lua   -- Metrics and error capture
-    │   ├── HeatmapService.lua     -- Position and zone tracking
     │   └── FeedbackService.lua    -- Feedback form system
     ├── Components/
     │   └── UIBinder.lua   -- Feedback form UI renderer
@@ -123,5 +156,8 @@ The SDK must only run server-side. Your API key must never be accessible from th
   </Card>
   <Card title="Quick Start" icon="bolt" href="/quickstart">
     End-to-end setup walkthrough.
+  </Card>
+  <Card title="Server vs Client" icon="server" href="/sdk-reference/server-vs-client">
+    Why you need both loaders.
   </Card>
 </CardGroup>

@@ -1,0 +1,98 @@
+---
+title: Server vs. Client Loaders
+description: Understanding the roles of the server and client in the Upview ecosystem.
+---
+
+The Upview SDK uses a dual-loader architecture to capture the most accurate data possible while maintaining strict security. To get the full benefits of the SDK, a script runs on the **Server** (the "brain") and a script runs on the **Client** (the "eyes").
+
+This page explains what each loader does and why they are both necessary for high-quality analytics.
+
+## Comparison at a Glance
+
+| Feature | Server Loader (`Script`) | Client Loader (`LocalScript`) |
+| :--- | :--- | :--- |
+| **Location** | `ServerScriptService` | `StarterPlayerScripts` |
+| **Authentication** | Uses your `ApiKey` | Does not use an API Key |
+| **Primary Role** | Auth, Batching, Session Lifecycle | UI Rendering, Performance, Local Errors |
+| **Visibility** | Hidden from players | Visible to players |
+| **Network** | Communicates with Upview API | Communicates with your Server |
+
+---
+
+## The Server Loader (The Brain)
+
+The Server Loader is the central coordinator for the SDK. It runs in Roblox's secure server environment, meaning players cannot see the code or access any sensitive data it holds.
+
+### What it handles:
+- **Authentication**: Securely connects your game to the Upview backend using your `ApiKey`.
+- **Global Lifecycle**: Tracks when the server starts, when it shuts down, and when players join or leave.
+- **The Data Pipeline**: It manages the `DataQueue`. All metrics (including those from clients) are sent to the Server Loader first, where it batches them to minimize network overhead before sending them to Upview.
+- **Heartbeats**: Keeps your session "alive" on the dashboard even if the server is empty.
+
+<Note>
+**Security Tip**: Your `ApiKey` should only ever exist in the Server Loader. Never expose it to the client.
+</Note>
+
+---
+
+## The Client Loader (The Eyes)
+
+The Client Loader runs on each player's device. Its job is to capture the "on-the-ground" experience that the server cannot see.
+
+### What it handles:
+- **Local Performance**: The server only knows how fast *it* is running. The Client Loader measures the player's actual **FPS**, **Ping**, and **Memory Usage** on their device.
+- **UI & Feedback**: It handles the rendering of feedback forms and surveys. When a player fills out a form, the Client Loader captures that input.
+- **Local Error Capture**: It detects "LocalScript" errors inside the player's UI or character scripts—errors that the server-side logs would otherwise miss.
+- **Secure Proxying**: It sends all captured data to the server via a `RemoteEvent`. It never talks to the Upview API directly.
+
+---
+
+## Why Both are Needed?
+
+To understand your game fully, you need two perspectives:
+
+1.  **The Server Perspective**: "Is the game server healthy? How many people are playing right now?"
+2.  **The Player Perspective**: "Is the game lagging for this specific player? Did they experience a UI crash? What did they think of the new update?"
+
+By running both loaders, Upview stitches these perspectives together into a single, comprehensive session timeline.
+
+## Implementation Example
+
+When you use the **Upview Studio Plugin**, it automatically generates both loaders for you. Here is what they look like:
+
+<Tabs>
+  <Tab title="Server (UpviewLoader)">
+```lua
+-- In ServerScriptService
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Upview = require(ReplicatedStorage.Upview)
+
+Upview:Init({
+    ApiKey = "uv_live_...", -- Key stays safe on the server
+}):Start()
+```
+  </Tab>
+  <Tab title="Client (UpviewClient)">
+```lua
+-- In StarterPlayerScripts
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local Upview = require(ReplicatedStorage.Upview)
+
+-- Notice: No API Key needed on the client!
+Upview:Init({}):Start()
+```
+  </Tab>
+</Tabs>
+
+<Warning>
+**Only one server loader should exist.** If you have multiple scripts calling `Upview:Init()` with an API Key on the server, you may see duplicate data or authentication errors in your dashboard.
+</Warning>
+
+<CardGroup cols={2}>
+  <Card title="Installation" icon="download" href="/sdk-reference/installation">
+    Get the SDK set up in your game.
+  </Card>
+  <Card title="Telemetry Service" icon="chart-line" href="/sdk-reference/telemetry">
+    Learn more about metrics and error tracking.
+  </Card>
+</CardGroup>
