@@ -1,9 +1,9 @@
 ---
-title: Installation
-description: Get the Upview SDK into your Roblox game.
+title: "Installation"
+description: "Get the Upview SDK into your Roblox game."
 ---
 
-The Upview SDK is a Luau ModuleScript that runs in your Roblox game server. It collects player analytics, performance metrics, feedback, and error reports — then sends everything to your Upview dashboard.
+The Upview SDK is a Luau ModuleScript that runs in your Roblox game. It collects player analytics, performance metrics, feedback, and error reports, then sends everything to your Upview dashboard.
 
 This page covers how to install it and verify data is flowing.
 
@@ -12,22 +12,22 @@ This page covers how to install it and verify data is flowing.
 Before installing, make sure:
 
 - You have a Roblox game open in Roblox Studio
-- You have an Upview workspace with an API key (get one at [upview.dev](https://dash.upview.dev))
+- You have an Upview workspace with an API key (get one at [dash.upview.dev](https://dash.upview.dev))
 - **HttpService is enabled** in your game
 
 <Warning>
-HttpService must be enabled or the SDK cannot send data. Go to **Game Settings → Security → Allow HTTP Requests** and turn it on.
+  HttpService must be enabled or the SDK cannot send data. Go to **Game Settings → Security → Allow HTTP Requests** and turn it on.
 </Warning>
 
 ## Installation
 
 <Tabs>
-  <Tab title="Studio Plugin (Recommended)">
-    The Upview Studio plugin handles everything automatically — it installs the SDK files, creates the loader script, and validates your API key.
+  <Tab title="Studio Plugin">
+    The Upview Studio plugin handles everything automatically. It fetches and installs the latest SDK files, creates the loader scripts, and validates your API key. It will tell you when a new SDK version is available whether it may be a bug fix, improvements or new features.
 
     <Steps>
       <Step title="Install the Plugin">
-        Get the **Upview Plugin** from the [Roblox Creator Store](https://create.roblox.com/store/asset/105169432388186/UpviewPlugin) or search for **Upview** in the Studio Toolbox.
+        Get the **Upview Plugin** from the [Roblox Creator Store](https://create.roblox.com/store/asset/105169432388186/UpviewPlugin).
       </Step>
       <Step title="Open the Plugin">
         Click the **Upview** button in the Plugins toolbar.
@@ -36,10 +36,14 @@ HttpService must be enabled or the SDK cannot send data. Go to **Game Settings �
         Paste your API key from [your dashboard](https://dash.upview.dev). Your key starts with `uv_live_` or `uv_test_`.
       </Step>
       <Step title="Click Sync & Install SDK">
-        The plugin will validate your key, install the SDK into `ReplicatedStorage`, and create a loader script in `ServerScriptService`.
+        The plugin will validate your key, install the SDK into `ReplicatedStorage`, and create a loader script in `ServerScriptService`. **This may take a few minutes for your first sync, due to roblox limitations.**
+
+        <Warning>
+          **Roblox Security Prompts**: When you first sync the plugin, Studio will show two permission dialogs, one for script access and one for network access to `sdk.upview.dev`. Click **Allow** on both. If the sync doesn't complete afterward, **restart Studio once** and try again. This is a known Roblox limitation with newly installed plugins.
+        </Warning>
       </Step>
       <Step title="Test the Connection">
-        Click **Play** in Studio. Check the Output window for `[Upview] SDK loaded and running!`. Your dashboard will show the connection within a few seconds.
+        Click **Play** in Studio. Check the Output window for `[Upview]` logs. Your dashboard will show the connection within a few seconds.
       </Step>
     </Steps>
 
@@ -47,42 +51,11 @@ HttpService must be enabled or the SDK cannot send data. Go to **Game Settings �
       The plugin automatically detects pushed updates up to the SDK and acts as a version control system, ensuring your game always runs the latest stable version without manual file replacement.
     </Tip>
   </Tab>
-  <Tab title="Manual Installation">
-    If you prefer not to use the plugin, you can install manually.
-
-    <Steps>
-      <Step title="Get the SDK">
-        Download or clone the SDK from [GitHub](https://github.com/upview-dev/sdk) and place the `Upview` folder into `ReplicatedStorage`.
-      </Step>
-      <Step title="Create a Server Script">
-        Create a new **Script** (not a LocalScript) in `ServerScriptService`. Name it something like `UpviewLoader`.
-      </Step>
-      <Step title="Add the Loader Code">
-        Paste this into your script:
-
-        ```lua
-        local ReplicatedStorage = game:GetService("ReplicatedStorage")
-        local Upview = require(ReplicatedStorage.Upview)
-
-        Upview:Init({
-            ApiKey = "your-api-key-here",
-        }):Start()
-        ```
-      </Step>
-      <Step title="Test">
-        Click Play in Studio. Check the Output window for SDK log messages. Your dashboard should show data within 30 seconds.
-      </Step>
-    </Steps>
-  </Tab>
 </Tabs>
-
-<Warning>
-**Roblox Security Prompts**: When you first sync the plugin, Studio will show two permission dialogs — one for script access and one for network access to `sdk.upview.dev`. Click **Allow** on both. If the sync doesn't complete afterward, **restart Studio once** and try again. This is a known Roblox limitation with newly installed plugins.
-</Warning>
 
 ## Minimal Working Example
 
-This is the smallest script that gets data flowing. Place it in `ServerScriptService`:
+This is the smallest script that gets data flowing. It's automatically injected by the Upview SDK.
 
 ```lua
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -91,21 +64,15 @@ local Upview = require(ReplicatedStorage.Upview)
 Upview:Init({
     ApiKey = "uv_live_abc123...",
 }):Start()
-
--- That's it. The SDK now tracks:
--- ✓ Player joins and leaves
--- ✓ Session duration and platform
--- ✓ Performance metrics (FPS, memory)
--- ✓ Unhandled Lua errors
 ```
 
 <Note>
-After calling `Init()` and `Start()`, the SDK begins collecting data automatically. You don't need to write any additional code for basic analytics.
+  After calling `Init()` and `Start()`, the SDK begins collecting data automatically. You don't need to write any additional code for basic analytics or data.
 </Note>
 
 ## What Gets Installed
 
-```
+```text
 ReplicatedStorage/
 └── Upview/
     ├── init.lua           -- Entry point (requires Core/Upview)
@@ -129,43 +96,42 @@ ReplicatedStorage/
   <Accordion title="Plugin security prompts blocking sync">
     Roblox Studio shows two permission dialogs when the Upview plugin first runs:
 
-    1. **"Allow UpviewPlugin to manage scripts"** — needed to create the SDK loader scripts
-    2. **"Allow UpviewPlugin to access sdk.upview.dev"** — needed to download SDK files
+    1. **"Allow UpviewPlugin to manage scripts"**, needed to create the SDK loader scripts
+    2. **"Allow UpviewPlugin to access sdk.upview.dev"**, needed to download SDK files
 
-    Click **Allow** on both. If the sync still fails, **restart Studio** — Roblox sometimes doesn't apply plugin permissions until the next session. In rare cases, you may need to restart twice.
-
-    You can also check your permissions in **Plugins → Manage Plugins → UpviewPlugin**.
+    Click **Allow** on both. If the sync still fails or takes ages, **restart Studio**. Roblox sometimes doesn't apply plugin permissions until the next session. In rare cases, you may need to restart twice.
   </Accordion>
-  <Accordion title="Using a LocalScript instead of a Script">
-    The SDK sends HTTP requests using `HttpService:RequestAsync()`, which only works on the server. If you `require` the SDK from a LocalScript, it will not send data.
 
-    Always use a **Script** in **ServerScriptService**.
-  </Accordion>
   <Accordion title="HttpService not enabled">
-    If you see errors about HTTP requests being blocked, go to **Game Settings → Security** and enable **Allow HTTP Requests**. This is off by default in new places.
+    If you see errors about HTTP requests being blocked, go to **Experience Settings → Security** and enable **Allow HTTP Requests**. This is off by default in new places.
   </Accordion>
+
   <Accordion title="Wrong API key">
-    API keys start with `uv_live_` (production) or `uv_test_` (development). If you paste the wrong key, the SDK will log a warning and continue in offline mode — no data will reach your dashboard.
+    API keys start with `uv_live_` (production) or `uv_test_` (development). If you paste the wrong key, the SDK will log a warning and continue in offline mode meaning no data will reach your dashboard.
   </Accordion>
+
   <Accordion title="API key exposed on the client">
-    Never put your API key in a LocalScript, ModuleScript in ReplicatedStorage that clients can read, or anywhere accessible from the client. The SDK handles server-to-client communication via RemoteEvents — the API key stays server-side.
+    Never put your API key in a LocalScript, ModuleScript in ReplicatedStorage that clients can read, or anywhere accessible from the client. The SDK handles server-to-client communication via RemoteEvents and the API key always stays server-side.
   </Accordion>
+
   <Accordion title="Calling SDK methods before Init">
     All SDK methods silently return if called before `Init()` and `Start()`. Make sure your init script runs before any other script that uses the SDK.
   </Accordion>
 </AccordionGroup>
 
 <Warning>
-The SDK must only run server-side. Your API key must never be accessible from the client. The SDK handles client-side features (like feedback forms) through secure RemoteEvents — it does not expose the key.
+  Your API key must never be accessible from the client. The SDK handles client-side features (like feedback forms) through secure RemoteEvents, it does not expose the key.
 </Warning>
 
 <CardGroup cols={2}>
   <Card title="Initialisation" icon="gear" href="/sdk-reference/initialisation">
     Configure the SDK with all available options.
   </Card>
+
   <Card title="Quick Start" icon="bolt" href="/quickstart">
     End-to-end setup walkthrough.
   </Card>
+
   <Card title="Server vs Client" icon="server" href="/sdk-reference/server-vs-client">
     Why you need both loaders.
   </Card>

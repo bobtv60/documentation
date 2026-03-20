@@ -9,24 +9,24 @@ Upview is an analytics platform for Roblox games. You install the SDK in your ga
   ![Why Upview](/images/WhyUpview.png)
 </Frame>
 
-The main reason Upview was created is that most Roblox developers have no reliable way to understand what's happening in their game from the player's perspective. Discord feedback is hard to read at volume, Roblox's built-in analytics don't show you where or why things go wrong, and errors often go unreported entirely. Upview is the only tool built specifically to fix that, for Roblox, and nothing else.
+Most Roblox developers have no reliable way to understand what's happening in their game from the player's perspective. Discord feedback is hard to read at volume, Roblox's built in analytics don't show you why things went wrong, and errors often go unreported entirely without any alerts. Upview is the only tool built specifically to fix that, for Roblox, and nothing else.
 
 ## Features at a glance
 
-<Card icon="megaphone" horizontal title="Feedback">
+<Card title="Feedback" icon="megaphone" horizontal>
   Players submit reports through forms you create in the dashboard. Each submission is automatically categorised, urgency scored, and grouped with similar reports. Instead of reading 200 Discord messages, you see "43 players reported a hitbox issue this week, urgency 8/10."
 </Card>
 
-<Card icon="map-location-dot" horizontal title="Alerting">
+<Card title="Alerting" icon="exclamation" horizontal>
   Configurable alert rules that monitor your game 24/7. When error rates spike, sentiment drops, or sessions get shorter, you'll know in seconds, not days. Know about problems before your players tell you.
 </Card>
 
-<Card icon="circle-exclamation" horizontal title="Error Monitoring">
-  Errors are captured automatically and grouped by fingerprint so the same crash doesn't appear as 500 separate issues. You can generate an AI diagnosis that identifies the root cause and suggests a specific fix based on the actual stack trace — not just "something broke."
+<Card title="Error Monitoring" icon="circle-exclamation" horizontal>
+  Errors are captured automatically and grouped by fingerprint so the same crash doesn't appear as 500 separate issues. You can generate an AI diagnosis that identifies the root cause and suggests a specific fix based on the actual stack trace, not just "something broke."
 </Card>
 
-<Card icon="head-side-brain" horizontal title="Upview Intelligence">
-  Generate a Deep Audit that reads your data and tells you what to fix first, this week, and next update — in plain English. There's also a chat interface where you can ask questions like "why are players leaving after 4 minutes" and get answers based on your actual data.
+<Card title="Upview Intelligence" icon="head-side-brain" horizontal>
+  Talk in plain English with your data. Generate a Deep Audit that reads your data and tells you what to fix first, this week, and next update. There's also a chat interface where you can ask questions like "why are players leaving after 4 minutes" and get answers backed by your actual data.
 </Card>
 
 ## Who Upview is for
@@ -39,13 +39,14 @@ Running scalable and reliable infrastructure has real costs, especially the AI f
 
 ## The Upview SDK
 
-Upview's SDK is of course fully open source. You can read every line before adding it to your game.
+Upview's SDK is not obfuscated. You can read every line before adding it to your game.
 
 <CardGroup cols={2}>
-  <Card icon="rocket" horizontal href="/documentation/getting-started/quickstart" title="Get started">
+  <Card title="Get started" icon="rocket" horizontal href="/documentation/getting-started/quickstart">
     Install the SDK.
   </Card>
-  <Card icon="gauge" horizontal href="https://upview.dev/dashboard" title="Dashboard">
+
+  <Card title="Dashboard" icon="gauge" horizontal href="https://upview.dev/dashboard">
     Open your workspace.
   </Card>
 </CardGroup>
