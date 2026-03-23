@@ -18,7 +18,7 @@ Sets up the SDK with your configuration. Returns the SDK instance so you can cha
 </ParamField>
 
 <ParamField path="config.BaseUrl" type="string">
-  Override the API endpoint URL. You don't need to set this unless you're running a self-hosted Upview instance.\
+  Override the API endpoint URL. You should never need to change this.\
   **Default:** `"https://sdk.upview.dev/v1"`
 </ParamField>
 
@@ -57,11 +57,6 @@ Sets up the SDK with your configuration. Returns the SDK instance so you can cha
   **Default:** `true`
 </ParamField>
 
-<ParamField path="config.EnableHeatmaps" type="boolean">
-  Tracks player positions, zones, and spatial events automatically.\
-  **Default:** `true`
-</ParamField>
-
 <ParamField path="config.EnableFeedback" type="boolean">
   Enables the feedback form system, including schema polling and RemoteEvent setup.\
   **Default:** `true`
@@ -91,7 +86,6 @@ Upview:Init({
 }):Start()
 ```
 
-
 ```lua Full Configuration
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Upview = require(ReplicatedStorage.Upview)
@@ -105,7 +99,6 @@ Upview:Init({
     RetryBaseDelay = 2,
     EnableDebugLogs = false,
     EnableTelemetry = true,
-    EnableHeatmaps = true,
     EnableFeedback = true,
     EnableErrorTracking = true,
 }):Start()
@@ -135,7 +128,7 @@ Upview:Start()
 What `Start()` does:
 
 1. Starts the DataQueue flush loop (sends batched events on the configured interval)
-2. Initialises and starts all enabled services (Telemetry, Heatmap, Feedback)
+2. Initialises and starts all enabled services
 3. Begins tracking player joins and leaves automatically
 4. Sends server heartbeats every 60 seconds
 5. Binds to `game:BindToClose()` to flush remaining data on shutdown
@@ -152,7 +145,7 @@ Stops all services gracefully. Disconnects all event listeners, stops the flush 
 Upview:Stop()
 ```
 
-You rarely need to call this yourself — the SDK automatically stops on server shutdown via `BindToClose`. Use it if you need to disable the SDK mid-session.
+You rarely need to call this yourself, the SDK automatically stops on server shutdown via `BindToClose`. Use it if you need to disable the SDK mid-session.
 
 ## `Upview:Destroy()`
 
@@ -167,10 +160,11 @@ Upview:Destroy()
 Every SDK method checks the internal status before executing. If `Init()` has not been called, methods like `TrackEvent()`, `ShowFeedbackForm()`, and `GetService()` silently return `nil` or do nothing. No errors are thrown.
 
 <CardGroup cols={2}>
-  <Card icon="sliders" href="/sdk-reference/configuration" title="Configuration Reference">
+  <Card title="Configuration Reference" icon="sliders" href="/sdk-reference/configuration">
     Full list of every config option with defaults.
   </Card>
-  <Card icon="bolt" href="/sdk-reference/events" title="Custom Events">
+
+  <Card title="Custom Events" icon="bolt" href="/sdk-reference/events">
     Track game-specific events.
   </Card>
 </CardGroup>

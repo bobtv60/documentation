@@ -9,15 +9,15 @@ The Upview SDK is a Luau ModuleScript that runs in your Roblox game. It collects
 
 | Feature | Description | Service |
 | --- | --- | --- |
-| **Session Tracking** | Player joins, leaves, duration, platform | Core |
-| **Custom Events** | Track any game event with metadata | Core |
+| **Session Tracking** | Player joins, leaves, duration, platform | Core (Automatic) |
+| **Custom Events** | Track any game event with metadata | TelemetryService |
 | **Performance Metrics** | FPS, memory, instance count, heartbeat time etc. | TelemetryService |
 | **Error Capture** | Unhandled errors with stack traces and context | TelemetryService |
 | **Feedback Forms** | Dynamic in game forms with live updates | FeedbackService |
 
 ## Architecture
 
-The SDK is a singleton. You `require` it once, call `Init()` with your API key, and call `Start()`. From that point, data collection is automatic.
+The SDK is a singleton. You `require` it once, call `Init()` with your API key, and call `Start()`. From that point, data collection is essentially automatic.
 
 ```lua
 local Upview = require(ReplicatedStorage.Upview)
@@ -84,11 +84,11 @@ The SDK tracks its state via `Upview.Status`:
     Configure and start the SDK.
   </Card>
 
-  <Card title="Feedback" icon="message" href="/sdk-reference/feedback">
+  <Card title="Feedback" icon="message" href="/sdk-reference/feedback-service">
     In-game feedback forms.
   </Card>
 
-  <Card title="Error Monitoring" icon="bug" href="/sdk-reference/error-monitoring">
+  <Card title="Error Monitoring" icon="bug" href="/sdk-reference/error-tracking">
     Automatic and manual error capture.
   </Card>
 
