@@ -14,7 +14,7 @@ Access the service via `Upview:GetService("Feedback")`.
 
 ```lua
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Upview = require(ReplicatedStorage.Upview)
+local Upview = require(ReplicatedStorage.Upview.init)
 
 Upview:Init({
     ApiKey = "uv_live_abc123...",
@@ -332,6 +332,7 @@ end)
   <Card title="Error Monitoring" icon="bug" href="/sdk-reference/error-monitoring">
     Capture and report Lua errors.
   </Card>
+
   <Card title="Custom Events Monitoring" icon="bug" href="/sdk-reference/events">
     Capture custom telemetry events.
   </Card>

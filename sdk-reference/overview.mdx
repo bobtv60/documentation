@@ -20,7 +20,7 @@ The Upview SDK is a Luau ModuleScript that runs in your Roblox game. It collects
 The SDK is a singleton. You `require` it once, call `Init()` with your API key, and call `Start()`. From that point, data collection is essentially automatic.
 
 ```lua
-local Upview = require(ReplicatedStorage.Upview)
+local Upview = require(ReplicatedStorage.Upview.init)
 Upview:Init({ ApiKey = "uv_live_..." }):Start()
 ```
 

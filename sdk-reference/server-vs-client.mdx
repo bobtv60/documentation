@@ -42,7 +42,7 @@ The Client Loader runs on each player's device. Its job is to capture the indivi
 
 ### What it handles:
 
-- **Local Performance**: The server only knows how fast **it **is running. The Client Loader measures the player's actual **FPS**, **Ping**, and **Memory Usage** on their device.
+- **Local Performance**: The server only knows how fast \*\*it \*\*is running. The Client Loader measures the player's actual **FPS**, **Ping**, and **Memory Usage** on their device.
 - **UI & Feedback**: It handles the rendering of feedback forms and surveys. When a player fills out a form, the Client Loader captures that input.
 - **Local Error Capture**: It detects "LocalScript" errors inside the player's UI or character scripts, errors that the server-side logs would otherwise miss.
 - **Secure Proxying**: It sends all captured data to the server via a `RemoteEvent`. It never talks to the Upview API directly.
@@ -67,7 +67,7 @@ When you use the **Upview Studio Plugin**, it automatically generates both loade
     ```lua
     -- In ServerScriptService
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local Upview = require(ReplicatedStorage.Upview)
+    local Upview = require(ReplicatedStorage.Upview.init)
     
     Upview:Init({
         ApiKey = "uv_live_...", -- Key stays safe on the server
@@ -78,7 +78,7 @@ When you use the **Upview Studio Plugin**, it automatically generates both loade
     ```lua
     -- In StarterPlayerScripts
     local ReplicatedStorage = game:GetService("ReplicatedStorage")
-    local Upview = require(ReplicatedStorage.Upview)
+    local Upview = require(ReplicatedStorage.Upview.init)
     
     -- Notice: No API Key needed on the client!
     Upview:Init({}):Start()

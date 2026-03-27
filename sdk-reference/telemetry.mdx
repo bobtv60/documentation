@@ -1,6 +1,6 @@
 ---
-title: Telemetry
-description: Performance metrics and custom telemetry events.
+title: "Telemetry"
+description: "Performance metrics and custom telemetry events."
 ---
 
 The TelemetryService collects performance metrics from your game server every 30 seconds and exposes them on your dashboard. It also provides an API for tracking custom events through the service directly.
@@ -9,7 +9,7 @@ Access it via `Upview:GetService("Telemetry")`.
 
 ```lua
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Upview = require(ReplicatedStorage.Upview)
+local Upview = require(ReplicatedStorage.Upview.init)
 
 Upview:Init({
     ApiKey = "uv_live_abc123...",
@@ -24,7 +24,7 @@ local TelemetryService = Upview:GetService("Telemetry")
 When `EnableTelemetry` is `true` (default), the service collects these metrics every 30 seconds:
 
 | Metric | Source | Description |
-|---|---|---|
+| --- | --- | --- |
 | `Fps` | `RunService.RenderStepped` | Frames per second |
 | `HeartbeatTime` | `Stats.HeartbeatTimeMs` | Server heartbeat duration in ms |
 | `MemoryUsage` | `Stats:GetTotalMemoryUsageMb()` | Total memory usage in MB |
@@ -52,7 +52,7 @@ print("Platform:", metrics.Platform)
 ```
 
 <Note>
-`GetCurrentMetrics()` collects fresh data each call. It waits one frame for the FPS measurement. Don't call this in a tight loop.
+  `GetCurrentMetrics()` collects fresh data each call. It waits one frame for the FPS measurement. Don't call this in a tight loop.
 </Note>
 
 ## `TelemetryService:TrackCustomEvent(name, data?, playerId?)`
@@ -106,6 +106,7 @@ end)
   <Card title="Error Monitoring" icon="bug" href="/sdk-reference/error-monitoring">
     Automatic and manual error capture.
   </Card>
+
   <Card title="Custom Events" icon="bolt" href="/sdk-reference/events">
     Track game-specific events.
   </Card>

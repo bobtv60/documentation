@@ -1,6 +1,6 @@
 ---
-title: Session Tracking
-description: What the SDK tracks automatically about player sessions.
+title: "Session Tracking"
+description: "What the SDK tracks automatically about player sessions."
 ---
 
 When you call `Init()` and `Start()`, the SDK automatically tracks player sessions. No additional code is needed for basic session data.
@@ -10,7 +10,7 @@ When you call `Init()` and `Start()`, the SDK automatically tracks player sessio
 For every player who joins the game, the SDK records:
 
 | Data | Source |
-|---|---|
+| --- | --- |
 | **User ID** | `player.UserId` |
 | **Username** | `player.Name` |
 | **Display Name** | `player.DisplayName` |
@@ -24,12 +24,12 @@ For every player who joins the game, the SDK records:
 ## How It Works
 
 1. **Player joins** → The SDK creates a `PlayerContext` and fires a `player_joined` event
-2. **During session** → The player's context is available via `Upview:GetPlayerContext(player)`  
+2. **During session** → The player's context is available via `Upview:GetPlayerContext(player)`
 3. **Player leaves** → The SDK fires a `player_left` event with session duration and last position, then cleans up all per-player state across services
 
 ```lua
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Upview = require(ReplicatedStorage.Upview)
+local Upview = require(ReplicatedStorage.Upview.init)
 
 Upview:Init({
     ApiKey = "uv_live_abc123...",
@@ -66,19 +66,17 @@ end
 ### PlayerContext Fields
 
 <Expandable title="PlayerContext type definition">
-
-| Field | Type | Description |
-|---|---|---|
-| `UserId` | `number` | The player's Roblox UserId |
-| `Username` | `string` | The player's username |
-| `DisplayName` | `string` | The player's display name |
-| `AccountAge` | `number` | Days since account creation |
-| `MembershipType` | `string` | Membership enum as string |
-| `Platform` | `string` | `"Desktop"`, `"Mobile"`, `"Tablet"`, `"Console"`, `"VR"`, or `"Unknown"` |
-| `Locale` | `string?` | Player's locale identifier |
-| `JoinTime` | `number` | Unix timestamp in milliseconds |
-| `SessionId` | `string` | Server session identifier |
-
+  | Field | Type | Description |
+  | --- | --- | --- |
+  | `UserId` | `number` | The player's Roblox UserId |
+  | `Username` | `string` | The player's username |
+  | `DisplayName` | `string` | The player's display name |
+  | `AccountAge` | `number` | Days since account creation |
+  | `MembershipType` | `string` | Membership enum as string |
+  | `Platform` | `string` | `"Desktop"`, `"Mobile"`, `"Tablet"`, `"Console"`, `"VR"`, or `"Unknown"` |
+  | `Locale` | `string?` | Player's locale identifier |
+  | `JoinTime` | `number` | Unix timestamp in milliseconds |
+  | `SessionId` | `string` | Server session identifier |
 </Expandable>
 
 ## Platform Detection
@@ -86,21 +84,21 @@ end
 The SDK detects the player's platform using `UserInputService`:
 
 | Platform | Detection Logic |
-|---|---|
+| --- | --- |
 | **VR** | `VREnabled` is true |
 | **Mobile** | `TouchEnabled` is true, `MouseEnabled` is false |
 | **Console** | `GamepadEnabled` is true, `KeyboardEnabled` is false |
 | **Tablet** | `TouchEnabled` and `KeyboardEnabled` are both true |
-| **Desktop** | Default (keyboard + mouse) |
+| **Desktop** | Default (keyboard \+ mouse) |
 
 <Note>
-Platform detection runs server-side. On the server, `UserInputService` reflects the server's capabilities, not individual clients. For per-player platform data, the SDK captures this at join time using the best available heuristic.
+  Platform detection runs server-side. On the server, `UserInputService` reflects the server's capabilities, not individual clients. For per-player platform data, the SDK captures this at join time using the best available heuristic.
 </Note>
 
 ## Signals
 
 | Signal | Parameters | Description |
-|---|---|---|
+| --- | --- | --- |
 | `Upview.OnPlayerJoined` | `PlayerContext` | Fired when a player joins and their context is prepared |
 | `Upview.OnPlayerLeft` | `Player` | Fired when a player leaves |
 
@@ -151,6 +149,7 @@ This ensures no data is lost on shutdown.
   <Card title="Configuration" icon="sliders" href="/sdk-reference/configuration">
     All available config options.
   </Card>
+
   <Card title="Installation" icon="download" href="/sdk-reference/installation">
     Getting the SDK into your game.
   </Card>

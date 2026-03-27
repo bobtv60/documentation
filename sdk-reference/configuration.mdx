@@ -9,7 +9,7 @@ This page lists every configuration option you can pass to `Upview:Init()`. Opti
 
 ```lua
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Upview = require(ReplicatedStorage.Upview)
+local Upview = require(ReplicatedStorage.Upview.init)
 
 Upview:Init({
     -- Required
@@ -34,7 +34,6 @@ Upview:Init({
 <ParamField path="ApiKey" type="string" required>
   Your Upview API key. Starts with `uv_live_` (production) or `uv_test_` (development). Get this from your [dashboard](https://dash.upview.dev).
 </ParamField>
-
 
 ## Batching Options
 
@@ -85,7 +84,6 @@ The SDK queues events in memory and sends them in batches via HTTP. These option
   When `true`, the TelemetryService hooks into `ScriptContext.Error` and `LogService.MessageOut` to capture unhandled Lua errors with stack traces and performance context.\
   **Default:** `true`
 </ParamField>
-
 
 ## Internal Constants
 

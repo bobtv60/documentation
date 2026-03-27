@@ -79,7 +79,7 @@ Sets up the SDK with your configuration. Returns the SDK instance so you can cha
 
 ```lua Basic Init
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Upview = require(ReplicatedStorage.Upview)
+local Upview = require(ReplicatedStorage.Upview.init)
 
 Upview:Init({
     ApiKey = "uv_live_abc123...",
@@ -88,7 +88,7 @@ Upview:Init({
 
 ```lua Full Configuration
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Upview = require(ReplicatedStorage.Upview)
+local Upview = require(ReplicatedStorage.Upview.init)
 
 Upview:Init({
     ApiKey = "uv_live_abc123...",
