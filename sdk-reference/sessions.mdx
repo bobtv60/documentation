@@ -21,13 +21,6 @@ For every player who joins the game, the SDK records:
 | **Join Time** | Timestamp when the player joined |
 | **Session ID** | Server-wide session identifier |
 
-When a player leaves, the SDK tracks:
-
-| Data | Source |
-|---|---|
-| **Session Duration** | Time between join and leave (seconds) |
-| **Last Position** | Player's last known `HumanoidRootPart` position (if HeatmapService is enabled) |
-
 ## How It Works
 
 1. **Player joins** → The SDK creates a `PlayerContext` and fires a `player_joined` event

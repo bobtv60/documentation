@@ -1,20 +1,20 @@
 ---
-title: Custom Events
-description: Tracking game-specific events with metadata.
+title: "Custom Events"
+description: "Tracking game-specific events with metadata."
 ---
 
-Custom events let you track anything that matters in your game. Level completions, boss kills, shop interactions, matchmaking results — any named event with optional metadata.
+Custom events let you track anything that matters in your game. Level completions, boss kills, shop interactions, matchmaking results etc. Any named event with optional metadata.
 
 ## `Upview:TrackEvent(eventType, data?, playerId?)`
 
 Sends a named event to the Upview dashboard.
 
 <ParamField path="eventType" type="string" required>
-  The event name. Built-in types include `"player_joined"`, `"player_left"`, `"heartbeat"`, `"error"`, `"zone_entered"`, `"zone_exited"`. Any other string is treated as a custom event.
+  The event name. Built-in types include `"player_joined"`, `"player_left"`, `"heartbeat"`, `"error"`. Any other string is treated as a custom event.
 </ParamField>
 
 <ParamField path="data" type="table?">
-  Optional metadata. A flat key-value table. Values can be strings, numbers, or booleans.
+  Optional metadata. A flat key, value table. Values can be strings, numbers, or booleans.
 </ParamField>
 
 <ParamField path="playerId" type="string?">
@@ -33,6 +33,7 @@ Upview:Init({
 ### Examples
 
 <CodeGroup>
+
 ```lua Level Completion
 Upview:TrackEvent("level_complete", {
     level = 5,
@@ -68,6 +69,7 @@ Upview:TrackEvent("boss_killed", {
     damageDealt = 15000,
 }, tostring(player.UserId))
 ```
+
 </CodeGroup>
 
 ## TelemetryService Custom Events
@@ -100,7 +102,7 @@ TelemetryService:TrackCustomEvent("level_complete", {
 ```
 
 <Note>
-`Upview:TrackEvent()` sends events with the exact name you provide. `TelemetryService:TrackCustomEvent()` prepends `"custom_"` to the name. Use whichever convention you prefer, but be consistent — the dashboard groups events by name.
+  `Upview:TrackEvent()` sends events with the exact name you provide. `TelemetryService:TrackCustomEvent()` prepends `"custom_"` to the name. Use whichever convention you prefer, but be consistent — the dashboard groups events by name.
 </Note>
 
 ## Event Naming
@@ -108,6 +110,7 @@ TelemetryService:TrackCustomEvent("level_complete", {
 The dashboard groups events by their `eventType` string. Consistent naming matters.
 
 **Do this:**
+
 ```lua
 Upview:TrackEvent("level_complete", { level = 5 })
 Upview:TrackEvent("level_complete", { level = 6 })
@@ -115,6 +118,7 @@ Upview:TrackEvent("level_complete", { level = 6 })
 ```
 
 **Not this:**
+
 ```lua
 Upview:TrackEvent("level_complete", { level = 5 })
 Upview:TrackEvent("LevelComplete", { level = 6 })
@@ -122,7 +126,7 @@ Upview:TrackEvent("LevelComplete", { level = 6 })
 ```
 
 <Tip>
-Use `snake_case` for event names. It's consistent with the built-in event types (`player_joined`, `zone_entered`, etc.) and avoids case-sensitivity issues.
+  Use `snake_case` for event names. It's consistent with the built-in event types (`player_joined`, `zone_entered`, etc.) and avoids case sensitivity issues.
 </Tip>
 
 ## Client-Side Events
@@ -143,7 +147,7 @@ Upview:TrackEvent("button_clicked", {
 Each event is wrapped in a `BatchEvent` structure:
 
 | Field | Value |
-|---|---| 
+| --- | --- |
 | `Id` | Auto-generated UUID |
 | `Type` | Your event name |
 | `Timestamp` | Unix timestamp in milliseconds |
@@ -157,10 +161,10 @@ Events are batched and sent in groups. They don't fire individual HTTP requests.
 
 ## Performance
 
-Events are queued in memory and flushed in batches (default: every 30 seconds or when 50 events accumulate). Calling `TrackEvent` is fast — it just appends to a table.
+Events are queued in memory and flushed in batches (default: every 30 seconds or when 50 events accumulate). Calling `TrackEvent` is fast as it just appends to a table.
 
 <Warning>
-Don't call `TrackEvent` every frame or on every `Heartbeat`. The queue will fill up and trigger constant flushes. Track meaningful game events, not continuous state.
+  Don't call `TrackEvent` every frame or on every `Heartbeat`. The queue will fill up and trigger constant flushes. Track meaningful game events, not continuous state.
 </Warning>
 
 ## Built-in Event Types
@@ -168,25 +172,22 @@ Don't call `TrackEvent` every frame or on every `Heartbeat`. The queue will fill
 The SDK automatically tracks these events. You don't need to fire them manually:
 
 | Event Type | When Fired | Data |
-|---|---|---|
+| --- | --- | --- |
 | `player_joined` | Player connects | userId, username, accountAge |
 | `player_left` | Player disconnects | userId, sessionDuration, lastPosition |
 | `heartbeat` | Every 60 seconds | playerCount, uptime |
 | `telemetry_metrics` | Every 30 seconds | fps, memoryUsage, instanceCount, platform |
 | `error` | On Lua error | message, stackTrace, fingerprint, context |
-| `zone_entered` | Player enters a zone | zone name |
-| `zone_exited` | Player exits a zone | zone name |
-| `spatial_points` | Position buffer flush | points array, count |
 | `feedback_form_opened` | Form shown to player | formId, formSlug |
 | `feedback_form_completed` | Form submitted | formId, formSlug, submissionId |
 | `feedback_form_closed` | Form closed without submit | formId, formSlug, duration |
-| `map_bounds_report` | Map bounds set | minX, minZ, maxX, maxZ |
 
 <CardGroup cols={2}>
   <Card title="Session Tracking" icon="users" href="/sdk-reference/sessions">
     What the SDK tracks about player sessions.
   </Card>
-  <Card title="Heatmaps" icon="map" href="/sdk-reference/heatmaps">
-    Track player positions spatially.
+
+  <Card title="Feedback" icon="message" href="/sdk-reference/heatmaps">
+    In-game feedback forms.
   </Card>
 </CardGroup>

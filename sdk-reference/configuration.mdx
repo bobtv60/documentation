@@ -1,6 +1,6 @@
 ---
-title: Configuration
-description: All available options for Upview:Init().
+title: "Configuration"
+description: "All available options for Upview:Init()."
 ---
 
 This page lists every configuration option you can pass to `Upview:Init()`. Options you don't specify use their default values.
@@ -15,10 +15,6 @@ Upview:Init({
     -- Required
     ApiKey = "uv_live_abc123...",
 
-    -- Network
-    BaseUrl = "https://sdk.upview.dev/v1",     -- Default. Override for self-hosted.
-    Environment = "Production",                 -- "Development" | "Staging" | "Production"
-
     -- Batching
     FlushInterval = 30,                         -- Seconds between batch flushes
     MaxBatchSize = 50,                          -- Events per batch before auto-flush
@@ -28,20 +24,8 @@ Upview:Init({
     -- Feature Toggles
     EnableDebugLogs = false,                    -- Print SDK activity to Output
     EnableTelemetry = true,                     -- Collect FPS, memory, instance count
-    EnableHeatmaps = true,                      -- Track player positions and zones
     EnableFeedback = true,                      -- Enable feedback form system
     EnableErrorTracking = true,                 -- Capture unhandled Lua errors
-
-    -- Heatmap Fine-Tuning
-    HeatmapTrackingInterval = 2,                -- Seconds between position samples
-    HeatmapMaxPointsPerFlush = 50,              -- Buffer size before auto-flush
-    HeatmapMinDistance = 0.5,                   -- Studs moved before recording
-    HeatmapAutoAnchorEnabled = true,            -- Use CollectionService for anchors
-    HeatmapAutoAnchorTag = "UpviewAnchor",      -- Tag name for anchor parts
-    HeatmapAutoAnchorDistance = 200,             -- Max studs from anchor
-    HeatmapAutoZoneEnabled = true,              -- Use CollectionService for zones
-    HeatmapAutoZoneTag = "UpviewZone",          -- Tag name for zone parts
-    HeatmapAutoTriggerEvents = true,            -- Auto-track deaths, purchases, tools
 }):Start()
 ```
 
@@ -51,126 +35,64 @@ Upview:Init({
   Your Upview API key. Starts with `uv_live_` (production) or `uv_test_` (development). Get this from your [dashboard](https://dash.upview.dev).
 </ParamField>
 
-<ParamField path="BaseUrl" type="string">
-  The API endpoint URL. You only need to change this if you're running a self-hosted Upview instance or testing against a local server.  
-  **Default:** `"https://sdk.upview.dev/v1"`
-</ParamField>
-
-<ParamField path="Environment" type="string">
-  Tags all events with an environment label. Valid values: `"Development"`, `"Staging"`, `"Production"`.  
-  **Default:** `"Production"`
-</ParamField>
 
 ## Batching Options
 
 The SDK queues events in memory and sends them in batches via HTTP. These options control batching behaviour.
 
 <ParamField path="FlushInterval" type="number">
-  Seconds between automatic batch flushes. The flush loop runs on this interval regardless of queue size.  
+  Seconds between automatic batch flushes. The flush loop runs on this interval regardless of queue size.\
   **Default:** `30`
 </ParamField>
 
 <ParamField path="MaxBatchSize" type="number">
-  Maximum events per batch. When the queue reaches this count, a flush is triggered immediately.  
+  Maximum events per batch. When the queue reaches this count, a flush is triggered immediately.\
   **Default:** `50`
 </ParamField>
 
 <ParamField path="MaxRetries" type="number">
-  Number of retry attempts when an HTTP request fails. Uses exponential backoff with a 60-second cap.  
+  Number of retry attempts when an HTTP request fails. Uses exponential backoff with a 60-second cap.\
   **Default:** `3`
 </ParamField>
 
 <ParamField path="RetryBaseDelay" type="number">
-  Base delay in seconds for the first retry. Doubles on each subsequent retry.  
+  Base delay in seconds for the first retry. Doubles on each subsequent retry.\
   **Default:** `2`
 </ParamField>
 
 <Note>
-The internal queue also has a hard cap of 500 events. If the queue is full, the oldest event is dropped to make room. This prevents memory issues if the API is unreachable.
+  The internal queue also has a hard cap of 500 events. If the queue is full, the oldest event is dropped to make room. This prevents memory issues if the API is unreachable.
 </Note>
 
 ## Feature Toggles
 
 <ParamField path="EnableDebugLogs" type="boolean">
-  When `true`, the SDK prints detailed log messages to the Output window. Useful for development and debugging. Turn off in production to reduce noise.  
+  When `true`, the SDK prints detailed log messages to the Output window. Useful for development and debugging. Turn off in production to reduce noise.\
   **Default:** `false`
 </ParamField>
 
 <ParamField path="EnableTelemetry" type="boolean">
-  When `true`, the TelemetryService collects performance metrics (FPS, memory usage, instance count) every 30 seconds and sends them as `telemetry_metrics` events.  
-  **Default:** `true`
-</ParamField>
-
-<ParamField path="EnableHeatmaps" type="boolean">
-  When `true`, the HeatmapService tracks player positions, zones, emotions, and spatial events automatically.  
+  When `true`, the TelemetryService collects performance metrics (FPS, memory usage, instance count) every 30 seconds and sends them as `telemetry_metrics` events.\
   **Default:** `true`
 </ParamField>
 
 <ParamField path="EnableFeedback" type="boolean">
-  When `true`, the FeedbackService is initialised. It sets up RemoteEvents for client-server form communication, starts schema polling, and enables live updates via MessagingService.  
+  When `true`, the FeedbackService is initialised. It sets up RemoteEvents for client-server form communication, starts schema polling, and enables live updates via MessagingService.\
   **Default:** `true`
 </ParamField>
 
 <ParamField path="EnableErrorTracking" type="boolean">
-  When `true`, the TelemetryService hooks into `ScriptContext.Error` and `LogService.MessageOut` to capture unhandled Lua errors with stack traces and performance context.  
+  When `true`, the TelemetryService hooks into `ScriptContext.Error` and `LogService.MessageOut` to capture unhandled Lua errors with stack traces and performance context.\
   **Default:** `true`
 </ParamField>
 
-## Heatmap Options
-
-These options are only used when `EnableHeatmaps` is `true`.
-
-<ParamField path="HeatmapTrackingInterval" type="number">
-  Seconds between position samples. Lower values give more data points but increase data volume.  
-  **Default:** `2`
-</ParamField>
-
-<ParamField path="HeatmapMaxPointsPerFlush" type="number">
-  Number of spatial points buffered before an automatic flush to the data queue.  
-  **Default:** `50`
-</ParamField>
-
-<ParamField path="HeatmapMinDistance" type="number">
-  Minimum studs a player must move since their last sample before a new point is recorded. Reduces noise from stationary players.  
-  **Default:** `0.5`
-</ParamField>
-
-<ParamField path="HeatmapAutoAnchorEnabled" type="boolean">
-  When `true`, the service scans for parts tagged with `UpviewAnchor` in CollectionService and automatically assigns the nearest anchor to each player.  
-  **Default:** `true`
-</ParamField>
-
-<ParamField path="HeatmapAutoAnchorTag" type="string">
-  The CollectionService tag name used to identify anchor parts.  
-  **Default:** `"UpviewAnchor"`
-</ParamField>
-
-<ParamField path="HeatmapAutoAnchorDistance" type="number">
-  Maximum distance in studs between a player and an anchor for the anchor to be active.  
-  **Default:** `200`
-</ParamField>
-
-<ParamField path="HeatmapAutoZoneEnabled" type="boolean">
-  When `true`, the service scans for parts tagged with `UpviewZone` in CollectionService and tracks zone enter/exit events.  
-  **Default:** `true`
-</ParamField>
-
-<ParamField path="HeatmapAutoZoneTag" type="string">
-  The CollectionService tag name used to identify zone parts.  
-  **Default:** `"UpviewZone"`
-</ParamField>
-
-<ParamField path="HeatmapAutoTriggerEvents" type="boolean">
-  When `true`, the service automatically hooks into `Humanoid.Died`, `MarketplaceService` purchase events, tool equip events, and feedback form completions to create spatial event markers.  
-  **Default:** `true`
-</ParamField>
 
 ## Internal Constants
 
 These values are not configurable through `Init()` but are useful to know:
 
 | Constant | Value | Description |
-|---|---|---|
+| --- | --- | --- |
 | Max queue size | 500 | Hard limit on events in memory |
 | Max bytes per batch | 500,000 | Size limit per HTTP request |
 | Retry delay cap | 60 seconds | Maximum delay between retries |
@@ -180,12 +102,12 @@ These values are not configurable through `Init()` but are useful to know:
 | Duplicate error cooldown | 60 seconds | Time before same error is captured again |
 | Schema cache timeout | 600 seconds | How long form schemas stay cached |
 | Schema polling interval | 300 seconds | How often the SDK checks for form updates |
-| Coordinate compression | 1 decimal place | Precision of position rounding |
 
 <CardGroup cols={2}>
   <Card title="Initialisation" icon="gear" href="/sdk-reference/initialisation">
     How Init and Start work.
   </Card>
+
   <Card title="Installation" icon="download" href="/sdk-reference/installation">
     Getting the SDK into your game.
   </Card>
